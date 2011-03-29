@@ -51,6 +51,13 @@ None asked yet.
 **wpdh_get_active_post_header** (*string*)
 > The url to the currently active header image.
 
+
+== Screenshots ==
+
+1. The meta box in the main column.
+2. The meta box in the side column.
+
+
 == Changelog ==
 
 = 1.0 =
