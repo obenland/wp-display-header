@@ -1,8 +1,10 @@
 <?php 
 /** obenland-wp-plugins.php
  * 
- * @author	Konstantin Obenland
- * @since	1.0
+ * @author		Konstantin Obenland
+ * @subpackage	WP Display Header
+ * @version		1.1
+ * @since		1.3
  */
 
 
@@ -12,6 +14,19 @@ class Obenland_Wp_Plugins {
 	/////////////////////////////////////////////////////////////////////////////
 	// PROPERTIES, PROTECTED
 	/////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * The plugins' text domain
+	 * 
+	 * @author	Konstantin Obenland
+	 * @since	1.1 - 03.04.2011
+	 * @access	protected
+	 * @static
+	 * 
+	 * @var		string
+	 */
+	protected $textdomain;
+	
 	
 	/**
 	 * The name of the calling plugin
@@ -52,19 +67,18 @@ class Obenland_Wp_Plugins {
 	 * 
 	 * @param	string	$plugin_name
 	 * @param	string	$donate_link_id
+	 * 
+	 * @return	Obenland_Wp_Plugins
 	 */
-	public function __construct( $plugin_name = '', $donate_link_id = '' ) {
+	public function __construct( $args = array() ) {
+		$this->textdomain	=	$args['textdomain'];
+		$this->plugin_name	=	$args['plugin_name'];
+		$this->set_donate_link( $args['donate_link_id'] );
 		
-		$this->plugin_name	=	$plugin_name;
-		$this->donate_link	=	add_query_arg(array(
-			'cmd'				=>	'_s-xclick',
-			'hosted_button_id'	=>	$donate_link_id
-		), 'https://www.paypal.com/cgi-bin/webscr');
-		
-		add_action('plugin_row_meta', array(
+		add_action( 'plugin_row_meta', array(
 			&$this,
 			'plugin_meta_donate'
-		), 10, 2);
+		), 10, 2 );
 	}
 	
 	/**
@@ -79,11 +93,35 @@ class Obenland_Wp_Plugins {
 	 * @return	string
 	 */
 	public function plugin_meta_donate( $plugin_meta, $plugin_file ) {
-		
 		if ( $this->plugin_name == $plugin_file ) {
-			$plugin_meta[]	=	sprintf( '<a href="%1$s" target="_blank" title="%2$s">%2$s</a>', $this->donate_link, __('Donate') );
+			$plugin_meta[]	=	sprintf(
+				'<a href="%1$s" target="_blank" title="%2$s">%2$s</a>',
+				$this->donate_link,
+				__('Donate', $this->textdomain)
+			);
 		}
 		return $plugin_meta;
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// METHODS, PROTECTED
+	///////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Sets the donate link
+	 * 
+	 * @author	Konstantin Obenland
+	 * @since	1.1 - 03.04.2011
+	 * @access	public
+	 * 
+	 * @param	string	$donate_link_id
+	 */
+	protected function set_donate_link( $donate_link_id ) {
+		$this->donate_link	=	add_query_arg( array(
+			'cmd'				=>	'_s-xclick',
+			'hosted_button_id'	=>	$donate_link_id
+		), 'https://www.paypal.com/cgi-bin/webscr' );
 	}
 } // End of class Obenland_Wp_Plugins
 

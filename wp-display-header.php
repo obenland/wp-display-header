@@ -1,16 +1,21 @@
 <?php
 /** wp-display-header.php
  * 
- * Plugin Name: WP Display Header
- * Plugin URI: http://www.obenlands.de/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
- * Description: This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version: 1.0
- * Author: Konstantin Obenland
- * Author URI: http://www.obenlands.de/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
- * Text Domain: wp-display-header
- * Domain Path: /lang
- * License: GPL2
+ * Plugin Name:	WP Display Header
+ * Plugin URI:	http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
+ * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
+ * Version:		1.1
+ * Author:		Konstantin Obenland
+ * Author URI:	http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
+ * Text Domain:	wp-display-header
+ * Domain Path:	/lang
+ * License:		GPLv2
  */
+
+
+if( ! class_exists('Obenland_Wp_Plugins') ) {
+	require_once('obenland-wp-plugins.php');
+}
 
 
 register_activation_hook(__FILE__, array(
@@ -19,7 +24,7 @@ register_activation_hook(__FILE__, array(
 ));
 
 
-class Obenland_Wp_Display_Header {
+class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 
 	/////////////////////////////////////////////////////////////////////////////
 	// PROPERTIES, PROTECTED
@@ -35,7 +40,7 @@ class Obenland_Wp_Display_Header {
 	 * 
 	 * @var		string
 	 */
-	protected static $textdomain	=	'wp-display-header';
+	protected static $plugin_textdomain	=	'wp-display-header';
   
 	
 	/////////////////////////////////////////////////////////////////////////////
@@ -49,18 +54,15 @@ class Obenland_Wp_Display_Header {
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
 	 * 
-	 * @return	void
+	 * @return	Obenland_Wp_Display_Header
 	 */
 	public function __construct() {
-		global $pagenow;
 
-		if( is_admin() AND 'plugins.php' == $pagenow ) {
-			if( ! class_exists('Obenland_Wp_Plugins') ) {
-				include_once( 'obenland-wp-plugins.php' );
-			}
-			new Obenland_Wp_Plugins( plugin_basename(__FILE__), 'MWUA92KA2TL6Q' );
-		}
-		
+		parent::__construct( array(
+			'textdomain'		=>	self::$plugin_textdomain,
+			'plugin_name'		=>	plugin_basename(__FILE__),
+			'donate_link_id'	=>	'MWUA92KA2TL6Q'
+		));
 		
 		add_action( 'theme_mod_header_image', array(
 			&$this,
@@ -100,10 +102,10 @@ class Obenland_Wp_Display_Header {
 	 * @return	void
 	 */
 	public static function activation() {
-		load_plugin_textdomain(self::$textdomain , false, self::$textdomain . '/lang');
+		load_plugin_textdomain(self::$plugin_textdomain , false, self::$plugin_textdomain . '/lang');
 		
 		if( ! current_theme_supports('custom-header')) {
-			_e( 'Your current theme does not support Custom Headers', self::$textdomain );
+			_e( 'Your current theme does not support Custom Headers', self::$plugin_textdomain );
 			exit;
 		}
 	}
@@ -191,12 +193,12 @@ class Obenland_Wp_Display_Header {
 			    cursor: pointer;
 			    vertical-align: middle;
 				}
-			#available-headers label input {
-			    margin-right: 10px;
-				}
-			#available-headers label img {
-			    vertical-align: middle;
-				}
+				#available-headers label input {
+				    margin-right: 10px;
+					}
+				#available-headers label img {
+				    vertical-align: middle;
+					}
 			#available-headers h4 {
 				margin: 1.5em 0;
 				text-shadow: 0 1px 0 #FFFFFF;
@@ -209,7 +211,14 @@ class Obenland_Wp_Display_Header {
 				width: 228px;
 				text-align: center;
 				vertical-align:middle;
-			}
+				}
+				#wpdh-random span {
+					display: block;
+					font-size: 1em;
+					font-weight: bold;
+					margin: 1.5em 0;
+					text-shadow: 0 1px 0 #FFFFFF;
+					}				
 		</style>
 <?php 
 	}
@@ -242,7 +251,7 @@ class Obenland_Wp_Display_Header {
 		
 		$active		=	$this->get_active_post_header( $post->ID, true );
 		
-		wp_nonce_field(self::$textdomain, self::$textdomain);
+		wp_nonce_field(self::$plugin_textdomain, self::$plugin_textdomain);
 ?>
 		<div id="available-headers">
 <?php
@@ -260,9 +269,9 @@ class Obenland_Wp_Display_Header {
 			<div class="default-header">
 				<label>
 					<input name="wpdh-display-header" type="radio" value="random" <?php checked('random', $active, false); ?> />
-					<div id="wpdh-random">
-						<h4><?php _e('Random'); ?></h4>
-					</div>
+					<span id="wpdh-random">
+						<span><?php _e('Random'); ?></span>
+					</span>
 				</label>
 			</div>
 			<div class="clear"></div>
@@ -287,8 +296,8 @@ class Obenland_Wp_Display_Header {
 		if (
 			( ! current_user_can('edit_post', $post_ID) ) OR
 			( defined('DOING_AUTOSAVE') AND DOING_AUTOSAVE ) OR
-			( ! isset($_POST[self::$textdomain]) ) OR
-			( ! wp_verify_nonce($_POST[self::$textdomain], self::$textdomain) )
+			( ! isset($_POST[self::$plugin_textdomain]) ) OR
+			( ! wp_verify_nonce($_POST[self::$plugin_textdomain], self::$plugin_textdomain) )
 		) {
 			return $post_ID;
 		}
@@ -309,48 +318,60 @@ class Obenland_Wp_Display_Header {
 	/**
 	 * Returns all registered headers
 	 * 
+	 * If there are uploaded headers via the WP Save Custom Header Plugin, they
+	 * will be loaded, too.
+	 * 
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
+	 * @global	$wpdb
+	 * @global	$_wp_default_headers
 	 * 
 	 * @return	array
 	 */
 	protected function get_headers() {
 		// Get all uploaded header images
-	    $posts = get_posts(apply_filters( 'wpdh_get_header_posts', array(
-	    	'numberposts'	=>	-1,
-	    	'post_type'		=>	'attachment',
-	    	'meta_key'		=>	'_header_image',
-	    	'order'			=>	'ASC',
-	    )));
+		$posts = get_posts(apply_filters( 'wpdh_get_header_posts', array(
+			'numberposts'	=>	-1,
+			'post_type'		=>	'attachment',
+			'meta_key'		=>	'_header_image',
+			'order'			=>	'ASC',
+		)));
 		$headers = array();
-	    
-	    foreach( $posts as $post ) {
-	    	$meta	=	get_post_meta( $post->ID, '_wp_attachment_metadata' );
-	    	$meta	=	( 1 == count($meta) ) ? $meta[0] : $meta;
-	    	
-	    	if( ! empty($meta) AND is_array($meta) ) {
-	    		$meta['post_title']	=	$post->post_title;
-	    		$headers[]			=	$meta;
-	    	}
-	    }
-	    
-	    if ( ! empty($headers) ) {
+
+		foreach( $posts as $post ) {
+			$meta	=	get_post_meta( $post->ID, '_wp_attachment_metadata' );
+			$meta	=	( 1 == count($meta) ) ? $meta[0] : $meta;
+			
+			if( ! empty($meta) AND is_array($meta) ) {
+				$meta['post_title']	=	$post->post_title;
+				$headers[]			=	$meta;
+			}
+		}
+		
+		if ( ! empty($headers) ) {
+			
+			$bid = '';
+			if ( is_multisite() ) {
+				global $wpdb;
+				$bid = trailingslashit($wpdb->blogid);
+			}
+	
 			foreach( $headers as $header ) {
 		
-		      $pics[$header['file']] = array(
+				$pics[$header['file']] = array(
 		
-		      	// %s is a placeholder for the theme template directory URI
-		        'url'			=>	'%s/images/headers/' . $header['file'],
-		        'thumbnail_url'	=>	'%s/images/headers/' . $header['sizes']['header-thumbnail']['file'],
-		        'description'	=>	$header['post_title']
-		      );
-		    }
+				// %s is a placeholder for the theme template directory URI
+				'url'			=>	'%s/images/headers/' . $bid . $header['file'],
+				'thumbnail_url'	=>	'%s/images/headers/' . $bid . $header['sizes']['header-thumbnail']['file'],
+				'description'	=>	$header['post_title']
+				);
+			}
 			register_default_headers( $pics );
-	    }
-	    
-	    global $_wp_default_headers;
-	    return apply_filters( 'wpdh_get_headers', $_wp_default_headers );
+		}
+		
+		global $_wp_default_headers;
+		return apply_filters( 'wpdh_get_headers', $_wp_default_headers );
 	}
 	
 	
@@ -382,6 +403,7 @@ class Obenland_Wp_Display_Header {
 			);
 		}
 		
+		// If no header set yet, get default header
 		if( ! $active ) {
 			$active	=	get_theme_mod( 'header_image' );
 		}

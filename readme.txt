@@ -3,8 +3,8 @@ Contributors: kobenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: 1.0
+Tested up to: 3.1.1
+Stable tag: 1.1
 
 Select a specific header or random header image for each content item.
 
@@ -59,6 +59,11 @@ None asked yet.
 
 
 == Changelog ==
+
+= 1.1 =
+* Tested for WordPress 3.1.1
+* Adopted [WP Save Custom Header](http://wordpress.org/extend/plugins/wp-save-custom-header/ "This plugin lets you save and reuse your uploaded header images.") multisite capability
+* Made HTML W3C valid
 
 = 1.0 =
 * Initial Release
