@@ -2,9 +2,8 @@
 /** obenland-wp-plugins.php
  * 
  * @author		Konstantin Obenland
- * @subpackage	WP Display Header
- * @version		1.1
- * @since		1.3
+ * @version		1.3
+ * @since		1.1
  */
 
 
@@ -54,6 +53,21 @@ class Obenland_Wp_Plugins {
 	protected $donate_link;
 	
 	
+	/**
+	 * The path to the plugin folder
+	 * 
+	 * /path/to/wp-content/plugins/{plugin-name}/
+	 * 
+	 * @author	Konstantin Obenland
+	 * @since	1.2 - 21.04.2011
+	 * @access	protected
+	 * @static
+	 * 
+	 * @var		string
+	 */
+	protected $plugin_path;
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// METHODS, PUBLIC
 	///////////////////////////////////////////////////////////////////////////
@@ -67,14 +81,24 @@ class Obenland_Wp_Plugins {
 	 * 
 	 * @param	string	$plugin_name
 	 * @param	string	$donate_link_id
-	 * 
-	 * @return	Obenland_Wp_Plugins
 	 */
 	public function __construct( $args = array() ) {
+		
+		// Set class properties
 		$this->textdomain	=	$args['textdomain'];
 		$this->plugin_name	=	$args['plugin_name'];
+		
 		$this->set_donate_link( $args['donate_link_id'] );
 		
+		$plugin_folder		=	str_replace(
+			basename($this->plugin_name),
+			"",
+			$this->plugin_name
+		);
+		$this->plugin_path	=	trailingslashit( WP_PLUGIN_DIR ) . $plugin_folder;
+		
+		
+		// Add actions and filters
 		add_action( 'plugin_row_meta', array(
 			&$this,
 			'plugin_meta_donate'
@@ -94,8 +118,8 @@ class Obenland_Wp_Plugins {
 	 */
 	public function plugin_meta_donate( $plugin_meta, $plugin_file ) {
 		if ( $this->plugin_name == $plugin_file ) {
-			$plugin_meta[]	=	sprintf(
-				'<a href="%1$s" target="_blank" title="%2$s">%2$s</a>',
+			$plugin_meta[]	=	sprintf('
+				<a href="%1$s" target="_blank" title="%2$s">%2$s</a>',
 				$this->donate_link,
 				__('Donate', $this->textdomain)
 			);
@@ -123,8 +147,9 @@ class Obenland_Wp_Plugins {
 			'hosted_button_id'	=>	$donate_link_id
 		), 'https://www.paypal.com/cgi-bin/webscr' );
 	}
+	
 } // End of class Obenland_Wp_Plugins
 
 
 /* End of file obenland-wp-plugins.php */
-/* Location: ./wp-content/plugins/wp-display-header/obenland-wp-plugins.php */
+/* Location: ./wp-content/plugins/{obenland-plugin}/obenland-wp-plugins.php */

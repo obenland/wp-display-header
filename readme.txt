@@ -4,7 +4,7 @@ Tags: admin, custom header, header, header image, custom header image, display h
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
 Tested up to: 3.1.1
-Stable tag: 1.1
+Stable tag: 1.2
 
 Select a specific header or random header image for each content item.
 
@@ -23,6 +23,7 @@ Currently available in:
 
 * English
 * Deutsch
+* Italiano
 
 Thanks to Erik T. for the idea to this plugin!
 
@@ -59,6 +60,11 @@ None asked yet.
 
 
 == Changelog ==
+
+= 1.2 =
+* Tested for WordPress 3.1.2
+* Now a custom folder name can be specified. See: Settings > Media
+* Added Italian translation (Thanks to Pietro Rossi)
 
 = 1.1 =
 * Tested for WordPress 3.1.1
