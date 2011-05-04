@@ -4,7 +4,7 @@ Tags: admin, custom header, header, header image, custom header image, display h
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
 Tested up to: 3.1.2
-Stable tag: 1.2
+Stable tag: 1.2.1
 
 Select a specific header or random header image for each content item.
 
