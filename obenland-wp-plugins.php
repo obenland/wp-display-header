@@ -3,7 +3,6 @@
  * 
  * @author		Konstantin Obenland
  * @version		1.3
- * @since		1.1
  */
 
 
