@@ -544,7 +544,6 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
  * 
  * @author	Konstantin Obenland
  * @since	1.2 - 03.05.2011
- * @global	$pagenow
  * 
  * @return	void
  */
