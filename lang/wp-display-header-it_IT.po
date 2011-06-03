@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Display Header v1.1\n"
+"Project-Id-Version: WP Display Header v1.2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2011-04-16 11:50+0100\n"
+"PO-Revision-Date: 2011-05-06 13:31+0100\n"
 "Last-Translator: Pietro Rossi <lang@pietrorossi.net>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 
 #@ wp-display-header
-#: obenland-wp-plugins.php:100
+#: obenland-wp-plugins.php:123
 msgid "Donate"
 msgstr "Dona"
 
@@ -54,23 +54,48 @@ msgid "http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_ca
 msgstr ""
 
 #@ wp-display-header
-#. translators: plugin header field 'Version'
-#: wp-display-header.php:0
-msgid "1.1"
-msgstr ""
-
-#@ wp-display-header
-#: wp-display-header.php:108
+#: wp-display-header.php:131
 msgid "Your current theme does not support Custom Headers"
 msgstr "Il tema che stai utilizzando non supporta testate personalizzate (custom headers)"
 
 #@ default
-#: wp-display-header.php:161
+#: wp-display-header.php:184
 msgid "Header"
 msgstr "Testata"
 
 #@ default
-#: wp-display-header.php:273
+#: wp-display-header.php:297
 msgid "Random"
 msgstr "Casuale"
+
+#@ wp-display-header
+#. translators: plugin header field 'Version'
+#: wp-display-header.php:0
+msgid "1.2.1"
+msgstr ""
+
+#@ wp-display-header
+#: wp-display-header.php:357
+msgid "Store header images in this template folder"
+msgstr "Carica immagini di testata in questa cartella dedicata"
+
+#@ wp-display-header
+#: wp-display-header.php:385
+msgid "Default is <code>images/headers</code>"
+msgstr "<code>images/headers</code> è la predefinita"
+
+#@ wp-display-header
+#: wp-display-header.php:411
+msgid "Header images should not be stored in the root directory of your theme. Please specify a folder and try again."
+msgstr "Le immagini di testata non dovrebbero essere caricate nella directory radice del tuo tema. Si prega di specificare una cartella e provare ancora."
+
+#@ wp-display-header
+#: wp-display-header.php:420
+msgid "The specified folder does not exist! Please create the folder, make it writable and try again."
+msgstr "La cartella specificata non esiste! Per favore, crea la cartella, rendila accessibile in scrittura e prova ancora."
+
+#@ wp-display-header
+#: wp-display-header.php:429
+msgid "The specified folder is not writable! Please make it writable and try again."
+msgstr "La cartella specificata non è accessibile in scrittura! Per favore, rendila accessibile in scrittura e prova ancora."
 

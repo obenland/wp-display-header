@@ -4,7 +4,7 @@
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version:		1.2
+ * Version:		1.3
  * Author:		Konstantin Obenland
  * Author URI:	http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
@@ -261,6 +261,14 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	public function display_meta_box( $post ) {
 		
 		$headers	=	$this->get_headers();
+		
+		if ( empty($headers) ) {
+			printf(
+				__('The are no headers available. Please <a href="%s">upload a header image</a>!'),
+				admin_url('themes.php?page=custom-header')
+			);
+			return;
+		}
 	
 		foreach ( array_keys($headers) as $header ) {
 			foreach ( array('url', 'thumbnail_url') as $url ) {
@@ -496,7 +504,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		}
 		
 		global $_wp_default_headers;
-		return apply_filters( 'wpdh_get_headers', $_wp_default_headers );
+		return apply_filters( 'wpdh_get_headers', (array) $_wp_default_headers );
 	}
 	
 	
