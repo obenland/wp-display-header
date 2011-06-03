@@ -3,8 +3,8 @@ Contributors: kobenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
-Tested up to: 3.1.2
-Stable tag: 1.2.1
+Tested up to: 3.2-beta
+Stable tag: 1.3
 
 Select a specific header or random header image for each content item.
 
@@ -60,6 +60,10 @@ None asked yet.
 
 
 == Changelog ==
+
+= 1.3 =
+* Tested for WordPress 3.2-beta
+* Fixed a minor bug where a PHP warning was issued in the edit-post-screen, when there are no header images registered.
 
 = 1.2.1 =
 * WordPress Plugin Repository update bug
