@@ -1,10 +1,10 @@
 <?php
 /** wp-display-header.php
- * 
+ *
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version:		1.3
+ * Version:		1.4
  * Author:		Konstantin Obenland
  * Author URI:	http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
@@ -32,12 +32,12 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * The plugins' text domain
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	protected
 	 * @static
-	 * 
+	 *
 	 * @var		string
 	 */
 	protected static $plugin_textdomain	=	'wp-display-header';
@@ -45,11 +45,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * The folder within the template directory where the headers sit
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.2 - 23.04.2011
 	 * @access	protected
-	 * 
+	 *
 	 * @var		string
 	 */
 	protected $image_folder;
@@ -61,11 +61,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @return	Obenland_Wp_Display_Header
 	 */
 	public function __construct() {
@@ -100,15 +100,22 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		add_action( 'admin_print_styles-post-new.php', array(
 			&$this,
 		 	'admin_print_styles'
-		));		
+		));
 		add_action( 'admin_print_styles-post.php', array(
 			&$this,
 		 	'admin_print_styles'
 		));
 		
-		add_action( 'admin_init', array(
-			&$this,
-			'add_settings_field'
+		if ( version_compare(get_bloginfo('version'), '3.2', '<') ) {
+			add_action( 'admin_init', array(
+				&$this,
+				'add_settings_field'
+			));
+		}
+		
+		add_filter( 'wpdh_get_headers', array(
+			$this,
+			'wp32_headers'
 		));
 	}
 
@@ -136,7 +143,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * Returns the header url
-	 * 
+	 *
 	 * Returns the default header when we are on the blog page, the header
 	 * settings page or no specific header was defined for that post. Can be
 	 * filtered!
@@ -144,22 +151,22 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @param	string	$header_url	The header url as saved in the theme mods
-	 * 
-	 * @return	string	
+	 *
+	 * @return	string
 	 */
 	public function display_header( $header_url ) {
 		global $post;
 		
-		// Filter the decision to display the default header 
-		$show_default	=	apply_filters( 'wpdh_show_default_header', (	
-			is_home() OR 
-			! isset($post) OR 
+		// Filter the decision to display the default header
+		$show_default	=	apply_filters( 'wpdh_show_default_header', (
+			is_home() OR
+			! isset($post) OR
 			! get_post_meta($post->ID, '_wpdh_display_header', true)
 		));
 		
-		if ( $show_default ){
+		if ( $show_default ) {
 			return $header_url;
 		}
 		return $this->get_active_post_header( $post->ID );
@@ -168,13 +175,13 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
   
 	/**
 	 * Adds the header post meta box
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @param	string	$post_type
-	 * 
+	 *
 	 * @return	void
 	 */
 	public function add_meta_box( $post_type ) {
@@ -195,11 +202,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * Renders the CSS so the Header meta box looks nice :)
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @return	void
 	 */
 	public function admin_print_styles() {
@@ -241,21 +248,21 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 					font-weight: bold;
 					margin: 1.5em 0;
 					text-shadow: 0 1px 0 #FFFFFF;
-					}				
+					}
 		</style>
-<?php 
+<?php
 	}
 	
 	
 	/**
 	 * Renders the content of the post meta box
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @param	stdClass	$post
-	 * 
+	 *
 	 * @return	void
 	 */
 	public function display_meta_box( $post ) {
@@ -289,12 +296,15 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		foreach ( $headers as $header_key => $header ) {
 			$header_url			=	$header['url'];
 			$header_thumbnail	=	$header['thumbnail_url'];
-			$header_desc		=	$header['description'];
+			
+			$header_desc 		=	isset($header['description'])
+								?	$header['description']
+								:	'';
 ?>
 			<div class="default-header">
 				<label>
 					<input name="wp-display-header" type="radio" value="<?php echo esc_attr($header_url); ?>" <?php checked($header_url, $active); ?> />
-					<img src="<?php echo esc_url($header_thumbnail); ?>" alt="<?php echo esc_attr($header_desc); ?>" title="<?php echo esc_attr($header_desc); ?>" />
+					<img width="230" src="<?php echo esc_url($header_thumbnail); ?>" alt="<?php echo esc_attr($header_desc); ?>" title="<?php echo esc_attr($header_desc); ?>" />
 				</label>
 			</div>
 <?php	} ?>
@@ -314,16 +324,16 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
  
 	/**
 	 * Saves the selected header for this post
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @param	int		$post_ID
-	 * 
+	 *
 	 * @return	int
 	 */
-	public function save_post( $post_ID ) {	
+	public function save_post( $post_ID ) {
 		
 		if (
 			( ! current_user_can('edit_post', $post_ID) ) OR
@@ -343,12 +353,12 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	/**
 	 * Registers the setting and the settings field if it does not already
 	 * exist
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.2 - 23.04.2011
 	 * @access	public
 	 * @global	$wp_settings_fields
-	 * 
+	 *
 	 * return	void
 	 */
 	public function add_settings_field() {
@@ -380,11 +390,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * Displays the settings field HTML
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.2 - 23.04.2011
 	 * @access	public
-	 * 
+	 *
 	 * return	void
 	 */
 	public function settings_field_callback() {
@@ -397,16 +407,16 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * Sanitizes the settings field input
-	 * 
+	 *
 	 * To make the input usable across plugins the folder path will be saved
 	 * without prepended or trailing slashes
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.2 - 23.04.2011
 	 * @access	public
-	 * 
+	 *
 	 * @param	string	$input
-	 * 
+	 *
 	 * @return	string	The sanitized folder name
 	 */
 	public function settings_field_validate( $input ) {
@@ -443,22 +453,41 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	}
 	
 	
+	/**
+	 * Adds uploaded headers from WordPress' builtin functionality
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.4 - 02.07.2011
+	 * @access	public
+	 *
+	 * @param	array	$args
+	 *
+	 * @return	array
+	 */
+	public function wp32_headers( $headers ) {
+		if ( version_compare(get_bloginfo('version'), '3.2', '>=') ) {
+			$headers	=	array_merge( $headers, get_uploaded_header_images());
+		}
+		return $headers;
+	}
+	
+	
 	/////////////////////////////////////////////////////////////////////////////
 	// METHODS, PROTECTED
 	/////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Returns all registered headers
-	 * 
+	 *
 	 * If there are uploaded headers via the WP Save Custom Header Plugin, they
 	 * will be loaded, too.
-	 * 
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
 	 * @global	$wpdb
 	 * @global	$_wp_default_headers
-	 * 
+	 *
 	 * @return	array
 	 */
 	protected function get_headers() {
@@ -510,17 +539,17 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	/**
 	 * Determines the active headeer for the post and returns the url
-	 * 
+	 *
 	 * The $raw variable is necessary so that the 'random' option stays
-	 * selected in post edit screens 
-	 * 
+	 * selected in post edit screens
+	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * 
+	 *
 	 * @param	int		$post_ID
 	 * @param	boolean	$raw
-	 * 
+	 *
 	 * @return	string
 	 */
 	protected function get_active_post_header( $post_ID, $raw = false ) {
@@ -549,10 +578,10 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 
 /**
  * Instantiates the class if current theme supports Custom Headers
- * 
+ *
  * @author	Konstantin Obenland
  * @since	1.2 - 03.05.2011
- * 
+ *
  * @return	void
  */
 function Obenland_wpdh_instantiate() {
