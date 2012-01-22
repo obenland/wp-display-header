@@ -3,8 +3,8 @@ Contributors: kobenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
-Tested up to: 3.2
-Stable tag: 1.4
+Tested up to: 3.3.1
+Stable tag: 1.5
 
 Select a specific header or random header image for each content item.
 
@@ -36,7 +36,13 @@ Thanks to Erik T. for the idea to this plugin!
 
 == Frequently Asked Questions ==
 
-None asked yet.
+= What do I need in the `header.php` file to make the plugin work seamlessly? =
+To make it work in your `header.php` file all you need is a `header_image()` call like so:
+
+`<img src="<?php header_image(); ?>" width="<?php echo HEADER_IMAGE_WIDTH; ?>" height="<?php echo HEADER_IMAGE_HEIGHT; ?>" alt="" />`
+
+See TwentyEleven's `header.php` for reference.
+
 
 = Plugin Filter Hooks =
 
@@ -61,6 +67,12 @@ None asked yet.
 
 == Changelog ==
 
+= 1.5 =
+* Adjusted meta box layout to WordPress core
+* Transfered CSS in external file
+* Updated FAQ section (thanks Brian!)
+* Tested for WordPress 3.3.1
+
 = 1.4 =
 * Added support for WordPress 3.2 core header uploads
 
@@ -83,3 +95,6 @@ None asked yet.
 
 = 1.0 =
 * Initial Release
+
+== Upgrade Notice == 
+Maintenance update

@@ -4,7 +4,7 @@
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version:		1.4
+ * Version:		1.5
  * Author:		Konstantin Obenland
  * Author URI:	http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
@@ -29,19 +29,6 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	/////////////////////////////////////////////////////////////////////////////
 	// PROPERTIES, PROTECTED
 	/////////////////////////////////////////////////////////////////////////////
-	
-	/**
-	 * The plugins' text domain
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.0 - 23.03.2011
-	 * @access	protected
-	 * @static
-	 *
-	 * @var		string
-	 */
-	protected static $plugin_textdomain	=	'wp-display-header';
-	
 	
 	/**
 	 * The folder within the template directory where the headers sit
@@ -71,7 +58,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	public function __construct() {
 
 		parent::__construct( array(
-			'textdomain'		=>	self::$plugin_textdomain,
+			'textdomain'		=>	'wp-display-header',
 			'plugin_name'		=>	plugin_basename(__FILE__),
 			'donate_link_id'	=>	'MWUA92KA2TL6Q'
 		));
@@ -79,7 +66,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		
 		$this->image_folder = get_option( 'wp-header-upload-folder', 'images/headers' );
 		
-		load_plugin_textdomain($this->textdomain , false, $this->textdomain . '/lang');
+		load_plugin_textdomain( 'wp-display-header' , false, 'wp-display-header/lang' );
 	
 		
 		add_action( 'theme_mod_header_image', array(
@@ -96,6 +83,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 			&$this,
 		 	'save_post'
 		));
+		
+		add_filter( 'admin_init', array(
+			&$this,
+			'register_scripts_styles'
+		), 9); // Set to 9, so they can easily be deregistered
 		
 		add_action( 'admin_print_styles-post-new.php', array(
 			&$this,
@@ -132,10 +124,10 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 * @return	void
 	 */
 	public static function activation() {
-		load_plugin_textdomain(self::$plugin_textdomain , false, self::$plugin_textdomain . '/lang');
+		load_plugin_textdomain( 'wp-display-header' , false, 'wp-display-header/lang' );
 		
 		if ( ! current_theme_supports('custom-header')  ) {
-			_e( 'Your current theme does not support Custom Headers', self::$plugin_textdomain );
+			_e( 'Your current theme does not support Custom Headers', 'wp-display-header' );
 			exit;
 		}
 	}
@@ -187,7 +179,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	public function add_meta_box( $post_type ) {
 
 		add_meta_box(
-			$this->textdomain,
+			'wp-display-header',
 			__('Header'),
 			array(
 				&$this,
@@ -201,7 +193,32 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	
 	
 	/**
-	 * Renders the CSS so the Header meta box looks nice :)
+	 * Registers the stylesheet
+	 *
+	 * The stylesheets can easily be deregistered be calling
+	 * <code>wp_deregister_style( 'wp-display-header' );</code> on the
+	 * admin_init hook
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.5 - 22.01.2012
+	 * @access	public
+	 *
+	 * @return	void
+	 */
+	public function register_scripts_styles() {
+		$suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '.dev' : '';
+		
+		wp_register_style(
+			$this->textdomain,
+			plugins_url("/css/{$this->textdomain}{$suffix}.css", __FILE__),
+			array(),
+			filemtime($this->plugin_path . "css/{$this->textdomain}{$suffix}.css")
+		);
+	}
+	
+	
+	/**
+	 * Enqueues the CSS so the Header meta box looks nice :)
 	 *
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
@@ -210,47 +227,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 * @return	void
 	 */
 	public function admin_print_styles() {
-?>
-		<style type="text/css">
-			#available-headers .default-header {
-			    float: left;
-			    margin: 0 20px 20px 0;
-				}
-			#side-sortables #available-headers .default-header {
-				margin-right: 0;
-				}
-			#available-headers label {
-			    cursor: pointer;
-			    vertical-align: middle;
-				}
-				#available-headers label input {
-				    margin-right: 10px;
-					}
-				#available-headers label img {
-				    vertical-align: middle;
-					}
-			#available-headers h4 {
-				margin: 1.5em 0;
-				text-shadow: 0 1px 0 #FFFFFF;
-				}
-			#wpdh-random {
-				background: url("<?php echo admin_url('images/ed-bg.gif'); ?>") repeat-x scroll left top #DFDFDF;
-				border: 1px solid #DFDFDF;
-				display: inline-block;
-				height: 46px;
-				width: 228px;
-				text-align: center;
-				vertical-align:middle;
-				}
-				#wpdh-random span {
-					display: block;
-					font-size: 1em;
-					font-weight: bold;
-					margin: 1.5em 0;
-					text-shadow: 0 1px 0 #FFFFFF;
-					}
-		</style>
-<?php
+		wp_enqueue_style( $this->textdomain );
 	}
 	
 	
@@ -271,7 +248,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		
 		if ( empty($headers) ) {
 			printf(
-				__('The are no headers available. Please <a href="%s">upload a header image</a>!'),
+				__('The are no headers available. Please <a href="%s">upload a header image</a>!', 'wp-display-header'),
 				admin_url('themes.php?page=custom-header')
 			);
 			return;
@@ -289,36 +266,35 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		
 		$active		=	$this->get_active_post_header( $post->ID, true );
 		
-		wp_nonce_field( $this->textdomain, $this->textdomain . '-nonce' );
-?>
-		<div id="available-headers">
-<?php
-		foreach ( $headers as $header_key => $header ) {
-			$header_url			=	$header['url'];
-			$header_thumbnail	=	$header['thumbnail_url'];
-			
-			$header_desc 		=	isset($header['description'])
-								?	$header['description']
-								:	'';
-?>
+		wp_nonce_field( 'wp-display-header', 'wp-display-header-nonce' );
+		?>
+		<div class="available-headers">
+			<div class="random-header">
+				<label>
+					<input name="wp-display-header" type="radio" value="random" <?php checked( 'random', $active ); ?> />
+					<?php _e( '<strong>Random:</strong> Show a different image on each page.' ); ?>
+				</label>
+			</div>
+			<?php
+			foreach ( $headers as $header_key => $header ) {
+				$header_url			=	$header['url'];
+				$header_thumbnail	=	$header['thumbnail_url'];
+				
+				$header_desc 		=	isset($header['description'])
+									?	$header['description']
+									:	'';
+			?>
 			<div class="default-header">
 				<label>
 					<input name="wp-display-header" type="radio" value="<?php echo esc_attr($header_url); ?>" <?php checked($header_url, $active); ?> />
 					<img width="230" src="<?php echo esc_url($header_thumbnail); ?>" alt="<?php echo esc_attr($header_desc); ?>" title="<?php echo esc_attr($header_desc); ?>" />
 				</label>
 			</div>
-<?php	} ?>
-			<div class="default-header">
-				<label>
-					<input name="wp-display-header" type="radio" value="random" <?php checked( 'random', $active ); ?> />
-					<span id="wpdh-random">
-						<span><?php _e('Random'); ?></span>
-					</span>
-				</label>
-			</div>
+			<?php } ?>
+			
 			<div class="clear"></div>
 		</div>
-<?php
+		<?php
 	}
  
  
@@ -338,13 +314,13 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		if (
 			( ! current_user_can('edit_post', $post_ID) ) OR
 			( defined('DOING_AUTOSAVE') AND DOING_AUTOSAVE ) OR
-			( ! isset($_POST[$this->textdomain]) ) OR
-			( ! wp_verify_nonce($_POST[$this->textdomain. '-nonce'], $this->textdomain) )
+			( ! isset($_POST['wp-display-header']) ) OR
+			( ! wp_verify_nonce($_POST['wp-display-header-nonce'], 'wp-display-header') )
 		) {
 			return $post_ID;
 		}
 
-		update_post_meta( $post_ID, '_wpdh_display_header', esc_attr($_POST[$this->textdomain]) );
+		update_post_meta( $post_ID, '_wpdh_display_header', esc_attr($_POST['wp-display-header']) );
 		
 		return $post_ID;
 	}
@@ -372,7 +348,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 				array(&$this, 'settings_field_validate')	// Sanitation callback
 			);
 			
-			$title = __( 'Store header images in this template folder', $this->textdomain );
+			$title = __( 'Store header images in this template folder', 'wp-display-header' );
 			
 			add_settings_field(
 				'wp-header-upload-folder',					// Id
@@ -398,10 +374,10 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 * return	void
 	 */
 	public function settings_field_callback() {
-	?>
+		?>
 		<input name="wp-header-upload-folder" type="text" id="wp-header-upload-folder" value="<?php echo esc_attr( $this->image_folder ); ?>" class="regular-text code" />
-		<span class="description"><?php _e( 'Default is <code>images/headers</code>', $this->textdomain ) ; ?></span>
-	<?php
+		<span class="description"><?php _e( 'Default is <code>images/headers</code>', 'wp-display-header' ) ; ?></span>
+		<?php
 	}
 	
 	
@@ -426,7 +402,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 			add_settings_error(
 				'wp-header-upload-folder',
 				'empty-value',
-				__('Header images should not be stored in the root directory of your theme. Please specify a folder and try again.', $this->textdomain)
+				__('Header images should not be stored in the root directory of your theme. Please specify a folder and try again.', 'wp-display-header')
 			);
 			return $this->image_folder;
 		}
@@ -435,7 +411,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 			add_settings_error(
 				'wp-header-upload-folder',
 				'no-dir',
-				__('The specified folder does not exist! Please create the folder, make it writable and try again.', $this->textdomain)
+				__('The specified folder does not exist! Please create the folder, make it writable and try again.', 'wp-display-header')
 			);
 			return $this->image_folder;
 		}
@@ -444,7 +420,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 			add_settings_error(
 				'wp-header-upload-folder',
 				'not-writable',
-				__('The specified folder is not writable! Please make it writable and try again.', $this->textdomain)
+				__('The specified folder is not writable! Please make it writable and try again.', 'wp-display-header')
 			);
 			return $this->image_folder;
 		}
@@ -460,13 +436,13 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 * @since	1.4 - 02.07.2011
 	 * @access	public
 	 *
-	 * @param	array	$args
+	 * @param	array	$headers
 	 *
 	 * @return	array
 	 */
 	public function wp32_headers( $headers ) {
 		if ( version_compare(get_bloginfo('version'), '3.2', '>=') ) {
-			$headers	=	array_merge( $headers, get_uploaded_header_images());
+			$headers	=	array_merge( $headers, get_uploaded_header_images() );
 		}
 		return $headers;
 	}
