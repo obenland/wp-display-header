@@ -42,67 +42,67 @@ msgstr "Dieses Plugin l&auml;sst dich eine bestimmte oder zuf&auml;llige Kopfzei
 msgid "Konstantin Obenland"
 msgstr "Konstantin Obenland"
 
-#: wp-display-header.php:131
+#: wp-display-header.php:130
 #@ wp-display-header
 msgid "Your current theme does not support Custom Headers"
 msgstr "Dein aktuelle Theme unterst&uuml;tzt Kopfzeilen nicht."
 
-#: wp-display-header.php:184
+#: wp-display-header.php:187
 #@ default
 msgid "Header"
 msgstr ""
 
-#: wp-display-header.php:307
-#@ default
-msgid "Random"
-msgstr ""
-
-#. translators: plugin header field 'PluginURI'
-#: wp-display-header.php:0
-#@ wp-display-header
-msgid "http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header"
-msgstr ""
-
-#. translators: plugin header field 'AuthorURI'
-#: wp-display-header.php:0
-#@ wp-display-header
-msgid "http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header"
-msgstr ""
-
-#: wp-display-header.php:367
+#: wp-display-header.php:357
 #@ wp-display-header
 msgid "Store header images in this template folder"
 msgstr "Kopfzeilen in folgendem Templateordner speichern"
 
-#: wp-display-header.php:395
+#: wp-display-header.php:385
 #@ wp-display-header
 msgid "Default is <code>images/headers</code>"
 msgstr "Grundeinstellung ist <code>images/headers</code>"
 
-#: wp-display-header.php:421
+#: wp-display-header.php:411
 #@ wp-display-header
 msgid "Header images should not be stored in the root directory of your theme. Please specify a folder and try again."
 msgstr "Kopfzeilen sollten nicht im Root-Verzeichnis des Themes gespeichert werden. Bitte gib einen anderen Ordner an und versuche es erneut."
 
-#: wp-display-header.php:430
+#: wp-display-header.php:420
 #@ wp-display-header
 msgid "The specified folder does not exist! Please create the folder, make it writable and try again."
 msgstr "Der angegebene Ordner existiert nicht! Bitte erstelle den Ordner, mache ihn beschreibbar und versuche es erneut."
 
-#: wp-display-header.php:439
+#: wp-display-header.php:429
 #@ wp-display-header
 msgid "The specified folder is not writable! Please make it writable and try again."
 msgstr "Der angegebene Ordner ist nicht beschreibbar! Bitte mache ihn beschreibbar und versuche es erneut."
 
-#. translators: plugin header field 'Version'
-#: wp-display-header.php:0
-#@ wp-display-header
-msgid "1.2.1"
-msgstr ""
-
-#: wp-display-header.php:268
+#: wp-display-header.php:252
 #, php-format
 #@ wp-display-header
 msgid "The are no headers available. Please <a href=\"%s\">upload a header image</a>!"
 msgstr "Es sind keine Kopfzeilen verf&uuml;gbar. Bitte <a href=\"%s\">lade ein Kopfzeilen-Bild hoch</a> !"
+
+#. translators: plugin header field 'PluginURI'
+#: wp-display-header.php:0
+#@ wp-display-header
+msgid "http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header"
+msgstr "http://wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header"
+
+#. translators: plugin header field 'AuthorURI'
+#: wp-display-header.php:0
+#@ wp-display-header
+msgid "http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header"
+msgstr "http://wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header"
+
+#. translators: plugin header field 'Version'
+#: wp-display-header.php:0
+#@ wp-display-header
+msgid "1.5.2"
+msgstr ""
+
+#: wp-display-header.php:276
+#@ default
+msgid "<strong>Random:</strong> Show a different image on each page."
+msgstr ""
 
