@@ -2,11 +2,11 @@
 /** wp-display-header.php
  *
  * Plugin Name:	WP Display Header
- * Plugin URI:	http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
+ * Plugin URI:	http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version:		1.5.1
+ * Version:		1.5.2
  * Author:		Konstantin Obenland
- * Author URI:	http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
+ * Author URI:	http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
  * Domain Path:	/lang
  * License:		GPLv2
@@ -150,16 +150,22 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 */
 	public function display_header( $header_url ) {
 		
+		$id	=	get_the_ID();
+		
+		if ( get_option( 'page_for_posts' ) AND is_home() ) {
+			$id	=	get_option( 'page_for_posts' );
+		}
+		
 		// Filter the decision to display the default header
 		$show_default	=	apply_filters( 'wpdh_show_default_header',
-			! get_post_meta( get_the_ID(), '_wpdh_display_header', true )
+			! get_post_meta( $id, '_wpdh_display_header', true )
 		);
 		
 		if ( $show_default ) {
 			return $header_url;
 		}
 		
-		return $this->get_active_post_header( get_the_ID() );
+		return $this->get_active_post_header( $id );
 	}
 
   

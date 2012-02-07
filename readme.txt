@@ -4,7 +4,7 @@ Tags: admin, custom header, header, header image, custom header image, display h
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 
 Select a specific header or random header image for each content item.
 
@@ -67,8 +67,10 @@ See TwentyEleven's `header.php` for reference.
 
 == Changelog ==
 
-= 1.5.1 =
+= 1.5.2 =
 * Fixed a bug, where a selected header wouldn't override the default selection on posts pages.
+
+= 1.5.1 =
 * Specific headers can now be reverted by selecting the default header.
 
 = 1.5 =
