@@ -4,7 +4,7 @@
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://www.obenlands.de/en/portfolio/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version:		1.5
+ * Version:		1.5.1
  * Author:		Konstantin Obenland
  * Author URI:	http://www.obenlands.de/en/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
@@ -26,9 +26,9 @@ register_activation_hook(__FILE__, array(
 
 class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	// PROPERTIES, PROTECTED
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * The folder within the template directory where the headers sit
@@ -42,9 +42,9 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	protected $image_folder;
   
 	
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	// METHODS, PUBLIC
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Constructor
@@ -149,19 +149,17 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 * @return	string
 	 */
 	public function display_header( $header_url ) {
-		global $post;
 		
 		// Filter the decision to display the default header
-		$show_default	=	apply_filters( 'wpdh_show_default_header', (
-			is_home() OR
-			! isset($post) OR
-			! get_post_meta($post->ID, '_wpdh_display_header', true)
-		));
+		$show_default	=	apply_filters( 'wpdh_show_default_header',
+			! get_post_meta( get_the_ID(), '_wpdh_display_header', true )
+		);
 		
 		if ( $show_default ) {
 			return $header_url;
 		}
-		return $this->get_active_post_header( $post->ID );
+		
+		return $this->get_active_post_header( get_the_ID() );
 	}
 
   
@@ -181,10 +179,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		add_meta_box(
 			'wp-display-header',
 			__('Header'),
-			array(
-				&$this,
-				'display_meta_box'
-			),
+			array( &$this, 'display_meta_box' ),
 			$post_type,
 			'normal',
 			'high'
@@ -210,9 +205,9 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 		
 		wp_register_style(
 			$this->textdomain,
-			plugins_url("/css/{$this->textdomain}{$suffix}.css", __FILE__),
+			plugins_url( "/css/{$this->textdomain}{$suffix}.css", __FILE__ ),
 			array(),
-			filemtime($this->plugin_path . "css/{$this->textdomain}{$suffix}.css")
+			filemtime( $this->plugin_path . "css/{$this->textdomain}{$suffix}.css" )
 		);
 	}
 	
@@ -311,16 +306,21 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	 */
 	public function save_post( $post_ID ) {
 		
-		if (
-			( ! current_user_can('edit_post', $post_ID) ) OR
-			( defined('DOING_AUTOSAVE') AND DOING_AUTOSAVE ) OR
-			( ! isset($_POST['wp-display-header']) ) OR
-			( ! wp_verify_nonce($_POST['wp-display-header-nonce'], 'wp-display-header') )
-		) {
-			return $post_ID;
+		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
+			( isset($_POST[$this->textdomain]) ) AND
+			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
+				
+			add_filter( 'wpdh_show_default_header', '__return_true', 99 );
+		
+			if ( esc_attr($_POST['wp-display-header']) == get_theme_mod( 'header_image' ) ) {
+				delete_post_meta( $post_ID, '_wpdh_display_header' );
+			}
+			else {
+				update_post_meta( $post_ID, '_wpdh_display_header', esc_attr($_POST['wp-display-header']) );
+			}
+			
+			remove_filter( 'wpdh_show_default_header', '__return_true', 99 );
 		}
-
-		update_post_meta( $post_ID, '_wpdh_display_header', esc_attr($_POST['wp-display-header']) );
 		
 		return $post_ID;
 	}
@@ -448,9 +448,9 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	}
 	
 	
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	// METHODS, PROTECTED
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Returns all registered headers
@@ -531,11 +531,10 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins {
 	protected function get_active_post_header( $post_ID, $raw = false ) {
 		$active		=	get_post_meta( $post_ID, '_wpdh_display_header', true );
 
-		if ( 'random' == $active AND ! $raw ){
+		if ( 'random' == $active AND ! $raw ) {
 			$headers	=	$this->get_headers();
-			shuffle( $headers );
 			$active	=	sprintf(
-				$headers[0]['url'],
+				$headers[array_rand($headers)]['url'],
 				get_template_directory_uri(),
 				get_stylesheet_directory_uri()
 			);
