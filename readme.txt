@@ -1,6 +1,6 @@
 === WP Display Header ===
 Contributors: kobenland
-Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header
+Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
 Tested up to: 3.3.1
@@ -58,7 +58,7 @@ See TwentyEleven's `header.php` for reference.
 **wpdh_get_active_post_header** (*string*)
 > The url to the currently active header image.
 
-
+ 
 == Screenshots ==
 
 1. The meta box in the main column.
