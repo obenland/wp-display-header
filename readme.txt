@@ -4,7 +4,7 @@ Tags: admin, custom header, header, header image, custom header image, display h
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 
 Select a specific header or random header image for each content item.
 
@@ -66,6 +66,11 @@ See TwentyEleven's `header.php` for reference.
 
 
 == Changelog ==
+
+= 1.5.3 =
+* Improved user experience when current theme does not support custom headers, on activation of the plugin.
+* Deprecated settings functions for WP Save Custom Header in preparation for overhaul in v2.0.0
+* Updated utility class
 
 = 1.5.2 =
 * Fixed a bug, where a selected header wouldn't override the default selection on posts pages.
