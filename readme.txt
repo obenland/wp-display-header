@@ -67,6 +67,10 @@ See TwentyEleven's `header.php` for reference.
 
 == Changelog ==
 
+= 2.0.0 =
+* **IMPORTANT**: Version 2.0.0 breaks compatibility with WordPress versions prior to 3.2!
+* Added to Taxonomies and Authors.
+
 = 1.5.3 =
 * Improved user experience when current theme does not support custom headers, on activation of the plugin.
 * Deprecated settings functions for WP Save Custom Header in preparation for overhaul in v2.0.0

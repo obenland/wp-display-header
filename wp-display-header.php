@@ -4,7 +4,7 @@
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
- * Version:		1.5.3
+ * Version:		2.0.0
  * Author:		Konstantin Obenland
  * Author URI:	http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
@@ -14,7 +14,7 @@
 
 
 if ( ! class_exists('Obenland_Wp_Plugins_v15') ) {
-	require_once('obenland-wp-plugins.php');
+	require_once( 'obenland-wp-plugins.php' );
 }
 
 
@@ -25,38 +25,6 @@ register_activation_hook(__FILE__, array(
 
 
 class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
-
-	
-	///////////////////////////////////////////////////////////////////////////
-	// PROPERTIES, PROTECTED
-	///////////////////////////////////////////////////////////////////////////
-	
-	/**
-	 * The folder within the template directory where the headers sit
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.2 - 23.04.2011
-	 * @access	protected
-	 *
-	 * @var		string
-	 */
-	protected $image_folder;
-  
-	
-	///////////////////////////////////////////////////////////////////////////
-	// PROPERTIES, PRIVATE
-	///////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Version number of this plugin
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.5.3 - 12.03.2012
-	 * @access	private
-	 *
-	 * @var		string
-	 */
-	private $version	=	'1.5.3';
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -80,9 +48,6 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 			'donate_link_id'	=>	'MWUA92KA2TL6Q'
 		));
 		
-		
-		$this->image_folder = get_option( 'wp-header-upload-folder', 'images/headers' );
-		
 		load_plugin_textdomain( 'wp-display-header' , false, 'wp-display-header/lang' );
 
 		$this->hook( 'init' );
@@ -104,9 +69,15 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		load_plugin_textdomain( 'wp-display-header' , false, 'wp-display-header/lang' );
 		
 		if ( ! current_theme_supports('custom-header')  ) {
-			wp_die(__( 'Your current theme does not support Custom Headers.', 'wp-display-header' ), '', array(
+			wp_die( __( 'Your current theme does not support Custom Headers.', 'wp-display-header' ), '', array(
 				'back_link'	=>	true
-			));
+			) );
+		}
+		
+		if ( version_compare(get_bloginfo('version'), '3.2', '<') ) {
+			wp_die( __( 'WP Display Headers requires WordPress version 3.2 or later.', 'wp-display-header' ), '', array(
+				'back_link'	=>	true
+			) );
 		}
 	}
 	
@@ -121,22 +92,31 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @return	void
 	 */
 	public function init() {
+
+		$this->hook( 'theme_mod_header_image' );
+		$this->hook( 'add_meta_boxes' );
 		
-		$hooks	=	array(
-			'add_meta_boxes',
-			'save_post',
-			'admin_print_styles-post-new.php',
-			'wpdh_get_headers',
-			'theme_mod_header_image'
-		);
+		// Save info
+		$this->hook( 'save_post' );
+		$this->hook( 'edit_term' );
+		$this->hook( 'personal_options_update',				'update_user' );
+		$this->hook( 'edit_user_profile_update',			'update_user' );
 		
-		foreach ( $hooks as $hook ) {
-			$this->hook( $hook );
+		// Styles
+		$this->hook( 'admin_init', 'register_scripts_styles', 9 ); // Set priority to 9, so they can easily be deregistered
+		$this->hook( 'admin_print_styles-post-new.php',		'admin_print_styles' );
+		$this->hook( 'admin_print_styles-post.php',			'admin_print_styles' );
+		$this->hook( 'admin_print_styles-edit-tags.php',	'admin_print_styles' );
+		$this->hook( 'admin_print_styles-profile.php',		'admin_print_styles' );
+		$this->hook( 'admin_print_styles-user-edit.php',	'admin_print_styles' );
+	
+		// Edit forms
+		foreach ( get_taxonomies( array('show_ui' => true) ) as $_tax ) {
+			$this->hook( "{$_tax}_edit_form",				'edit_form' , 9 ); //Let's make us a bit more important than we are
 		}
-		
-		// Set priority to 9, so they can easily be deregistered
-		$this->hook( 'admin_init', 'register_scripts_styles', 9);
-		$this->hook( 'admin_print_styles-post.php', 'admin_print_styles_post_new_php' );
+		$this->hook( 'admin_init',							'add_settings_field' );
+		$this->hook( 'show_user_profile',					'edit_form' );
+		$this->hook( 'show_user_profile',					'edit_form' );
 	}
 
 	
@@ -156,28 +136,22 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @return	string
 	 */
 	public function theme_mod_header_image( $header_url ) {
-		global $post;
 		
-		if ( ! isset($post) ) {
-			return $header_url;
+		if ( is_category() OR is_tag() OR is_tax() ) {
+			$active_header = $this->get_active_tax_header();
 		}
-	
-		$id	=	$post->ID;
-	
-		if ( get_option( 'page_for_posts' ) AND is_home() ) {
-			$id	=	get_option( 'page_for_posts' );
+		else if ( is_author() ) {
+			$active_header = $this->get_active_author_header();
+		}
+		else if ( is_singular() ) {
+			$active_header = $this->get_active_post_header();
+		}
+		
+		if ( isset($active_header) ) {
+			$header_url = $active_header;
 		}
 
-		// Filter the decision to display the default header
-		$show_default	=	apply_filters( 'wpdh_show_default_header',
-			! get_post_meta( $id, '_wpdh_display_header', true )
-		);
-		
-		if ( $show_default ) {
-			return $header_url;
-		}
-		
-		return $this->get_active_post_header( $id );
+		return $header_url;
 	}
 
   
@@ -193,15 +167,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @return	void
 	 */
 	public function add_meta_boxes( $post_type ) {
-
-		add_meta_box(
-			'wp-display-header',
-			__('Header'),
-			array( &$this, 'display_meta_box' ),
-			$post_type,
-			'normal',
-			'high'
-		);
+		add_meta_box( 'wp-display-header', __('Header'), array( &$this, 'display_meta_box' ), $post_type, 'normal', 'high' );
 	}
 	
 	
@@ -219,13 +185,14 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @return	void
 	 */
 	public function register_scripts_styles() {
+		$plugin_data = get_plugin_data( __FILE__, false, false );
 		$suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '.dev' : '';
 		
 		wp_register_style(
 			$this->textdomain,
 			plugins_url( "/css/{$this->textdomain}{$suffix}.css", __FILE__ ),
 			array(),
-			$this->version
+			$plugin_data['Version']
 		);
 	}
 	
@@ -239,16 +206,67 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 *
 	 * @return	void
 	 */
-	public function admin_print_styles_post_new_php() {
+	public function admin_print_styles() {
 		wp_enqueue_style( $this->textdomain );
 	}
 	
 	
 	/**
+	 * Registers the setting and the settings field if it does not already
+	 * exist
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.0 - 22.01.2012
+	 * @access	public
+	 *
+	 * return	void
+	 */
+	public function add_settings_field() {
+			
+		add_settings_section(
+			$this->textdomain,
+			__('Header'),
+			array(
+				&$this,
+				'settings_section_callback'
+			),
+			$this->textdomain
+		);
+		
+		add_settings_field(
+			$this->textdomain,
+			__('Choose Header', 'wp-display-header-pro'),
+			array(
+				&$this,
+				'header_selection_callback'
+			),
+			$this->textdomain,
+			$this->textdomain
+		);
+	}
+	
+	
+	/**
+	 * Adds a settings section to the category edit screen
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.0 - 22.01.2012
+	 * @access	public
+	 *
+	 * @param	stdClass	$object
+	 *
+	 * @return	void
+	 */
+	public function edit_form( $object ) {
+		do_settings_sections( $this->textdomain );
+	}
+
+	
+	/**
 	 * Renders the content of the post meta box
 	 *
 	 * @author	Konstantin Obenland
-	 * @since	1.0 - 23.03.2011
+	 * @since	1.0 - 22.01.2012
 	 * @access	public
 	 *
 	 * @param	stdClass	$post
@@ -256,6 +274,176 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @return	void
 	 */
 	public function display_meta_box( $post ) {
+		$active	=	$this->get_active_post_header( $post->ID, true );
+		$this->header_selection_form( $active );
+	}
+	
+	
+	/**
+	 * Echos out a description at the top of the section (between heading and
+	 * fields).
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.0 - 22.01.2012
+	 * @access	public
+	 *
+	 * return	void
+	 */
+	public function settings_section_callback() {
+
+		switch ( get_current_screen()->base ) {
+			case 'profile':
+				_e( 'Select a header image for the author page.', 'wp-display-header-pro' );
+				break;
+			
+			case 'edit-tags':
+				_e( 'Select a header image for the taxonomy archive page.', 'wp-display-header-pro' );
+				break;
+		}
+	}
+	
+	
+	/**
+	 * Displays the settings field HTML
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.0 - 22.01.2012
+	 * @access	public
+	 *
+	 * @return	void
+	 */
+	public function header_selection_callback() {
+		
+		$active	=	'';
+		
+		switch ( get_current_screen()->base ) {
+			case 'profile':
+				global $profileuser;
+				$active = get_user_meta( $profileuser->ID, $this->textdomain, true );
+				break;
+			
+			case 'edit-tags':
+				global $tag;
+				if ( $active = get_option( 'wpdh_tax_meta', '' ) ) {
+					$active	=	isset($active[$tag->term_taxonomy_id]) ? $active[$tag->term_taxonomy_id] : '';
+				}
+				break;
+		}
+
+		// If no header set yet, get default header
+		if ( ! $active ) {
+			$active	=	get_theme_mod( 'header_image' );
+		}
+		
+		$this->header_selection_form( $active );
+	}
+ 
+ 
+	/**
+	 * Saves the selected header for this post
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.0 - 23.03.2011
+	 * @access	public
+	 *
+	 * @param	int		$post_ID
+	 *
+	 * @return	int		Post ID
+	 */
+	public function save_post( $post_ID ) {
+		
+		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
+			( isset($_POST[$this->textdomain]) ) AND
+			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
+			
+			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
+			
+			add_filter( 'wpdh_show_default_header', '__return_true', 99 );
+			
+			if ( $value == get_theme_mod( 'header_image' ) ) {
+				delete_post_meta( $post_ID, '_wpdh_display_header' );
+			}
+			else {
+				update_post_meta( $post_ID, '_wpdh_display_header', $value );
+			}
+			
+			remove_filter( 'wpdh_show_default_header', '__return_true', 99 );
+		}
+		
+		return $post_ID;
+	}
+	
+
+	
+	/**
+	 * Sanitizes the settings field input
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	2.0.0 - 12.03.2012
+	 * @access	public
+	 *
+	 * @param	int		$term_id
+	 * @param	string	$tt_id
+	 * @param	string	$taxonomy
+	 *
+	 * @return	int 	Term ID
+	 */
+	public function edit_term( $term_id, $tt_id, $taxonomy ) {
+
+		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
+			( isset($_POST[$this->textdomain]) ) AND
+			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
+				
+			$term_meta			=	get_option( 'wpdh_tax_meta', array() );
+			$term_meta[$tt_id]	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
+			update_option( 'wpdh_tax_meta', $term_meta );
+		}
+		
+		return $term_id;
+	}
+	
+	
+	/**
+	 * Sanitizes the settings field input
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	2.0.0 - 12.03.2012
+	 * @access	public
+	 *
+	 * @param	int		$user_id
+	 *
+	 * @return	int		User ID
+	 */
+	public function update_user( $user_id ) {
+		
+		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
+			( isset($_POST[$this->textdomain]) ) AND
+			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
+				
+			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
+			update_user_meta( $user_id, '_wpdh_display_header', $value );
+		}
+		
+		return $user_id;
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// METHODS, PROTECTED
+	///////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Displays the settings field HTML
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	1.0 - 22.01.2012
+	 * @access	protected
+	 *
+	 * @param	string	$active
+	 *
+	 * @return	void
+	 */
+	protected function header_selection_form( $active = '' ) {
 		
 		$headers	=	$this->get_headers();
 		
@@ -276,9 +464,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 				);
 			}
 		}
-		
-		$active		=	$this->get_active_post_header( $post->ID, true );
-		
+
 		wp_nonce_field( 'wp-display-header', 'wp-display-header-nonce' );
 		?>
 		<div class="available-headers">
@@ -292,10 +478,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 			foreach ( $headers as $header_key => $header ) {
 				$header_url			=	$header['url'];
 				$header_thumbnail	=	$header['thumbnail_url'];
-				
-				$header_desc 		=	isset($header['description'])
-									?	$header['description']
-									:	'';
+				$header_desc 		=	isset($header['description']) ?	$header['description'] : '';
 			?>
 			<div class="default-header">
 				<label>
@@ -304,176 +487,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 				</label>
 			</div>
 			<?php } ?>
-			
 			<div class="clear"></div>
 		</div>
 		<?php
 	}
- 
- 
-	/**
-	 * Saves the selected header for this post
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.0 - 23.03.2011
-	 * @access	public
-	 *
-	 * @param	int		$post_ID
-	 *
-	 * @return	int
-	 */
-	public function save_post( $post_ID ) {
-		
-		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
-			( isset($_POST[$this->textdomain]) ) AND
-			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
-				
-			add_filter( 'wpdh_show_default_header', '__return_true', 99 );
-			
-			if ( esc_attr($_POST['wp-display-header']) == get_theme_mod( 'header_image' ) ) {
-				delete_post_meta( $post_ID, '_wpdh_display_header' );
-			}
-			else {
-				update_post_meta( $post_ID, '_wpdh_display_header', esc_attr($_POST['wp-display-header']) );
-			}
-			
-			remove_filter( 'wpdh_show_default_header', '__return_true', 99 );
-		}
-		
-		return $post_ID;
-	}
 	
-	
-	/**
-	 * Registers the setting and the settings field if it does not already
-	 * exist
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.2 - 23.04.2011
-	 * @access	public
-	 * @global	$wp_settings_fields
-	 *
-	 * return	void
-	 */
-	public function add_settings_field() {
-		_deprecated_function( __FUNCTION__, '1.5.3' );
-		
-		global $wp_settings_fields;
-		
-		if ( ! isset($wp_settings_fields['media']['uploads']['wp-header-upload-folder']) ) {
-			
-			register_setting(
-				'media',									// Option group
-				'wp-header-upload-folder',					// Option name
-				array(&$this, 'settings_field_validate')	// Sanitation callback
-			);
-			
-			$title = __( 'Store header images in this template folder', 'wp-display-header' );
-			
-			add_settings_field(
-				'wp-header-upload-folder',					// Id
-				$title,										// Title
-				array(&$this, 'settings_field_callback'),	// Callback
-				'media',									// Page
-				'uploads',									// Section
-				array(										// Args
-					'label_for'	=>	'wp-header-upload-folder'
-				)
-			);
-		}
-	}
-	
-	
-	/**
-	 * Displays the settings field HTML
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.2 - 23.04.2011
-	 * @access	public
-	 *
-	 * return	void
-	 */
-	public function settings_field_callback() {
-		_deprecated_function( __FUNCTION__, '1.5.3' );
-		?>
-		<input name="wp-header-upload-folder" type="text" id="wp-header-upload-folder" value="<?php echo esc_attr( $this->image_folder ); ?>" class="regular-text code" />
-		<span class="description"><?php _e( 'Default is <code>images/headers</code>', 'wp-display-header' ) ; ?></span>
-		<?php
-	}
-	
-	
-	/**
-	 * Sanitizes the settings field input
-	 *
-	 * To make the input usable across plugins the folder path will be saved
-	 * without prepended or trailing slashes
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.2 - 23.04.2011
-	 * @access	public
-	 *
-	 * @param	string	$input
-	 *
-	 * @return	string	The sanitized folder name
-	 */
-	public function settings_field_validate( $input ) {
-		_deprecated_function( __FUNCTION__, '1.5.3' );
-		
-		$input = trim( $input, '/' );
-		
-		if ( empty($input) ) {
-			add_settings_error(
-				'wp-header-upload-folder',
-				'empty-value',
-				__('Header images should not be stored in the root directory of your theme. Please specify a folder and try again.', 'wp-display-header')
-			);
-			return $this->image_folder;
-		}
-		
-		if ( ! is_dir(trailingslashit(TEMPLATEPATH) . $input) ) {
-			add_settings_error(
-				'wp-header-upload-folder',
-				'no-dir',
-				__('The specified folder does not exist! Please create the folder, make it writable and try again.', 'wp-display-header')
-			);
-			return $this->image_folder;
-		}
-		
-		if ( ! is_writable(trailingslashit(TEMPLATEPATH) . $input) ) {
-			add_settings_error(
-				'wp-header-upload-folder',
-				'not-writable',
-				__('The specified folder is not writable! Please make it writable and try again.', 'wp-display-header')
-			);
-			return $this->image_folder;
-		}
-		
-		return $input;
-	}
-	
-	
-	/**
-	 * Adds uploaded headers from WordPress' builtin functionality
-	 *
-	 * @author	Konstantin Obenland
-	 * @since	1.4 - 02.07.2011
-	 * @access	public
-	 *
-	 * @param	array	$headers
-	 *
-	 * @return	array
-	 */
-	public function wpdh_get_headers( $headers ) {
-		if ( version_compare(get_bloginfo('version'), '3.2', '>=') ) {
-			$headers	=	array_merge( $headers, get_uploaded_header_images() );
-		}
-		return $headers;
-	}
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// METHODS, PROTECTED
-	///////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Returns all registered headers
@@ -484,55 +502,88 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @author	Konstantin Obenland
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
-	 * @global	$wpdb
 	 * @global	$_wp_default_headers
 	 *
 	 * @return	array
 	 */
 	protected function get_headers() {
-		// Get all uploaded header images
-		$posts = get_posts(apply_filters( 'wpdh_get_header_posts', array(
-			'numberposts'	=>	-1,
-			'post_type'		=>	'attachment',
-			'meta_key'		=>	'_header_image',
-			'order'			=>	'ASC',
-		)));
-		$headers = array();
-
-		foreach ( $posts as $post ) {
-			$meta	=	get_post_meta( $post->ID, '_wp_attachment_metadata' );
-			$meta	=	( 1 == count($meta) ) ? $meta[0] : $meta;
-			
-			if ( ! empty($meta) AND is_array($meta) ) {
-				$meta['post_title']	=	$post->post_title;
-				$headers[]			=	$meta;
-			}
-		}
-		
-		if ( ! empty($headers) ) {
-			
-			$bid = '';
-			if ( is_multisite() ) {
-				global $wpdb;
-				$bid = trailingslashit( $wpdb->blogid );
-			}
-			
-			$placeholder = '%s/' . trailingslashit( $this->image_folder ) . $bid;
-	
-			foreach ( $headers as $header ) {
-		
-				$pics[$header['file']] = array(
-					// %s is a placeholder for the theme template directory URI
-					'url'			=>	$placeholder . $header['file'],
-					'thumbnail_url'	=>	$placeholder . $header['sizes']['header-thumbnail']['file'],
-					'description'	=>	$header['post_title']
-				);
-			}
-			register_default_headers( $pics );
-		}
-		
 		global $_wp_default_headers;
-		return apply_filters( 'wpdh_get_headers', (array) $_wp_default_headers );
+		
+		$headers = array_merge( $_wp_default_headers, get_uploaded_header_images() );
+		
+		return apply_filters( 'wpdh_get_headers', (array) $headers );
+	}
+
+	
+	/**
+	 * Determines the active header for the post and returns the url
+	 *
+	 * The $raw variable is necessary so that the 'random' option stays
+	 * selected in post edit screens
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	2.0.0 - 12.03.2012
+	 * @access	protected
+	 *
+	 * @param	string	$post_ID
+	 * @param	boolean	$raw
+	 *
+	 * @return	string
+	 */
+	protected function get_active_post_header( $post_ID = 0, $raw = false ) {
+		
+		if ( ! $post_ID ) {
+			global $post;
+			$post_ID	=	$post->ID;
+		}
+		
+		$active	=	get_post_meta( $post_ID, '_wpdh_display_header', true );
+		
+		return apply_filters( 'wpdh_get_active_post_header', $this->get_active_header( $active, $raw ) );
+	}
+	
+	
+	/**
+	 * Determines the active header for the category and returns the url
+	 *
+	 * The $raw variable is necessary so that the 'random' option stays
+	 * selected in post edit screens
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	2.0.0 - 12.03.2012
+	 * @access	protected
+	 *
+	 * @return	string
+	 */
+	protected function get_active_tax_header() {
+		
+		$tt_id	=	get_queried_object()->term_taxonomy_id;
+		
+		if ( $active = get_option( 'wpdh_tax_meta', false ) ) {
+			$active	=	isset($active[$tt_id]) ? $active[$tt_id] : '';
+		}
+		
+		return apply_filters( 'wpdh_get_active_tax_header', $this->get_active_header( $active ) );
+	}
+	
+	
+	/**
+	 * Determines the active header for the author and returns the url
+	 *
+	 * The $raw variable is necessary so that the 'random' option stays
+	 * selected in post edit screens
+	 *
+	 * @author	Konstantin Obenland
+	 * @since	2.0.0 - 12.03.2012
+	 * @access	protected
+	 *
+	 * @return	string
+	 */
+	protected function get_active_author_header() {
+		
+		$active	=	get_user_meta( get_queried_object()->ID, '_wpdh_display_header', true );
+		
+		return apply_filters( 'wpdh_get_active_author_header', $this->get_active_header( $active ) );
 	}
 	
 	
@@ -546,29 +597,23 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @since	1.0 - 23.03.2011
 	 * @access	public
 	 *
-	 * @param	int		$post_ID
+	 * @param	string	$header	Header URL
 	 * @param	boolean	$raw
 	 *
 	 * @return	string
 	 */
-	protected function get_active_post_header( $post_ID, $raw = false ) {
-		$active		=	get_post_meta( $post_ID, '_wpdh_display_header', true );
+	protected function get_active_header( $header, $raw = false ) {
 
-		if ( 'random' == $active AND ! $raw ) {
+		if ( 'random' == $header AND ! $raw ) {
 			$headers	=	$this->get_headers();
-			$active	=	sprintf(
+			$header		=	sprintf(
 				$headers[array_rand($headers)]['url'],
 				get_template_directory_uri(),
 				get_stylesheet_directory_uri()
 			);
 		}
-	
-		// If no header set yet, get default header
-		if ( ! $active ) {
-			$active	=	get_theme_mod( 'header_image' );
-		}
 
-		return apply_filters( 'wpdh_get_active_post_header', $active );
+		return apply_filters( 'wpdh_get_active_header', $header );
 	}
 	
 } // End of class Obenland_Wp_Display_Header
@@ -584,7 +629,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
  */
 function Obenland_wpdh_instantiate() {
 
-	if ( current_theme_supports('custom-header') ){
+	if ( current_theme_supports('custom-header') ) {
 		new Obenland_Wp_Display_Header;
 	}
 }
