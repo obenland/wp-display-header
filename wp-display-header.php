@@ -598,7 +598,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	
 	
 	/**
-	 * Determines the active headeer for the post and returns the url
+	 * Determines the active header for the post and returns the url
 	 *
 	 * The $raw variable is necessary so that the 'random' option stays
 	 * selected in post edit screens
