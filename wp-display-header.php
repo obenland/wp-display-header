@@ -329,7 +329,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 				}
 				break;
 		}
-
+		
 		// If no header set yet, get default header
 		if ( ! $active ) {
 			$active	=	get_theme_mod( 'header_image' );
@@ -355,7 +355,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
 			( isset($_POST[$this->textdomain]) ) AND
 			( wp_verify_nonce($_POST["{$this->textdomain}-nonce"], $this->textdomain) ) ) {
-			var_dump("Hello");
+			
 			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
 			
 			if ( $value == get_theme_mod( 'header_image' ) ) {
@@ -388,7 +388,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 
 		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
 			( isset($_POST[$this->textdomain]) ) AND
-			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
+			( wp_verify_nonce($_POST["{$this->textdomain}-nonce"], $this->textdomain) ) ) {
 				
 			$term_meta			=	get_option( 'wpdh_tax_meta', array() );
 			$term_meta[$tt_id]	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
@@ -414,10 +414,10 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		
 		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
 			( isset($_POST[$this->textdomain]) ) AND
-			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
+			( wp_verify_nonce($_POST["{$this->textdomain}-nonce"], $this->textdomain) ) ) {
 				
 			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
-			update_user_meta( $user_id, '_wpdh_display_header', $value );
+			update_user_meta( $user_id, $this->textdomain, $value );
 		}
 		
 		return $user_id;
