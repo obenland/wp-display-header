@@ -567,9 +567,8 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 */
 	protected function get_active_tax_header() {
 		
-		$tt_id	=	get_queried_object()->term_taxonomy_id;
-		
 		if ( $active = get_option( 'wpdh_tax_meta', false ) ) {
+			$tt_id	=	get_queried_object()->term_taxonomy_id;
 			$active	=	isset($active[$tt_id]) ? $active[$tt_id] : '';
 		}
 		
