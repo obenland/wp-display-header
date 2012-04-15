@@ -3,7 +3,7 @@
  *
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
- * Description:	This plugin lets you specify a header image for each post individually from your default headers and custom headers.
+ * Description:	This plugin lets you specify a header image for each post and taxonomy/author archive page individually, from your default headers and custom headers.
  * Version:		2.0.0
  * Author:		Konstantin Obenland
  * Author URI:	http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
@@ -13,7 +13,7 @@
  */
 
 
-if ( ! class_exists('Obenland_Wp_Plugins_v15') ) {
+if ( ! class_exists('Obenland_Wp_Plugins_v200') ) {
 	require_once( 'obenland-wp-plugins.php' );
 }
 
@@ -24,7 +24,7 @@ register_activation_hook(__FILE__, array(
 ));
 
 
-class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
+class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v200 {
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -68,13 +68,13 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	public static function activation() {
 		load_plugin_textdomain( 'wp-display-header' , false, 'wp-display-header/lang' );
 		
-		if ( ! current_theme_supports('custom-header')  ) {
+		if ( ! current_theme_supports( 'custom-header' ) ) {
 			wp_die( __( 'Your current theme does not support Custom Headers.', 'wp-display-header' ), '', array(
 				'back_link'	=>	true
 			) );
 		}
 		
-		if ( version_compare(get_bloginfo('version'), '3.2', '<') ) {
+		if ( version_compare( get_bloginfo('version'), '3.2', '<' ) ) {
 			wp_die( __( 'WP Display Headers requires WordPress version 3.2 or later.', 'wp-display-header' ), '', array(
 				'back_link'	=>	true
 			) );
