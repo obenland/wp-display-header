@@ -150,7 +150,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		if ( isset($active_header) ) {
 			$header_url = $active_header;
 		}
-		
+
 		return $header_url;
 	}
 
@@ -354,11 +354,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		
 		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
 			( isset($_POST[$this->textdomain]) ) AND
-			( wp_verify_nonce($_POST[$this->textdomain . '-nonce'], $this->textdomain) ) ) {
-			
+			( wp_verify_nonce($_POST["{$this->textdomain}-nonce"], $this->textdomain) ) ) {
+			var_dump("Hello");
 			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
 			
-			if ( (is_random_header_image() AND 'random' == $value) OR $value == get_theme_mod( 'header_image' ) ) {
+			if ( $value == get_theme_mod( 'header_image' ) ) {
 				delete_post_meta( $post_ID, '_wpdh_display_header' );
 			}
 			else {
@@ -435,7 +435,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @since	1.0 - 22.01.2012
 	 * @access	protected
 	 *
-	 * @param	string	$active		Optional
+	 * @param	string	$active
 	 *
 	 * @return	void
 	 */
@@ -504,7 +504,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 */
 	protected function get_headers() {
 		global $_wp_default_headers;
-		
+
 		$headers = array_merge( (array) $_wp_default_headers, get_uploaded_header_images() );
 		
 		return apply_filters( 'wpdh_get_headers', (array) $headers );
@@ -521,8 +521,8 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @since	2.0.0 - 12.03.2012
 	 * @access	protected
 	 *
-	 * @param	string	$post_ID	Optional
-	 * @param	boolean	$raw		Optional
+	 * @param	string	$post_ID
+	 * @param	boolean	$raw
 	 *
 	 * @return	string
 	 */
@@ -594,30 +594,21 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @access	public
 	 *
 	 * @param	string	$header	Header URL
-	 * @param	boolean	$raw	Optional
+	 * @param	boolean	$raw
 	 *
 	 * @return	string
 	 */
 	protected function get_active_header( $header, $raw = false ) {
-		
-		if ( ! $header ) {
-			$header = get_theme_mod( 'header_image' );
+
+		if ( 'random' == $header AND ! $raw ) {
+			$headers	=	$this->get_headers();
+			$header		=	sprintf(
+				$headers[array_rand($headers)]['url'],
+				get_template_directory_uri(),
+				get_stylesheet_directory_uri()
+			);
 		}
-		
-		if ( is_random_header_image() OR 'random' == $header ) {
-			if ( $raw ) {
-				$header = 'random';
-			}
-			else {
-				$headers	=	$this->get_headers();
-				$header		=	sprintf(
-					$headers[array_rand($headers)]['url'],
-					get_template_directory_uri(),
-					get_stylesheet_directory_uri()
-				);
-			}
-		}
-		
+
 		return apply_filters( 'wpdh_get_active_header', $header );
 	}
 	
