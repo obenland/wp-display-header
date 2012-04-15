@@ -509,7 +509,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	protected function get_headers() {
 		global $_wp_default_headers;
 		
-		$headers = array_merge( $_wp_default_headers, get_uploaded_header_images() );
+		$headers = array_merge( (array) $_wp_default_headers, get_uploaded_header_images() );
 		
 		return apply_filters( 'wpdh_get_headers', (array) $headers );
 	}
