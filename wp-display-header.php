@@ -358,7 +358,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 			
 			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
 			
-			if ( $value == get_theme_mod( 'header_image' ) ) {
+			if ( isset($_POST['wpdh-reset-header']) ) {
 				delete_post_meta( $post_ID, '_wpdh_display_header' );
 			}
 			else {
@@ -391,7 +391,13 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 			( wp_verify_nonce($_POST["{$this->textdomain}-nonce"], $this->textdomain) ) ) {
 				
 			$term_meta			=	get_option( 'wpdh_tax_meta', array() );
-			$term_meta[$tt_id]	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
+			
+			if ( isset($_POST['wpdh-reset-header']) ) {
+				unset( $term_meta[$tt_id] );
+			}
+			else {
+				$term_meta[$tt_id]	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
+			}
 			update_option( 'wpdh_tax_meta', $term_meta );
 		}
 		
@@ -415,9 +421,14 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		if ( ( ! defined('DOING_AUTOSAVE') OR ! DOING_AUTOSAVE ) AND
 			( isset($_POST[$this->textdomain]) ) AND
 			( wp_verify_nonce($_POST["{$this->textdomain}-nonce"], $this->textdomain) ) ) {
-				
-			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
-			update_user_meta( $user_id, $this->textdomain, $value );
+			
+			if ( isset($_POST['wpdh-reset-header']) ) {
+				delete_user_meta( $user_id, $this->textdomain );
+			}
+			else {
+				$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
+				update_user_meta( $user_id, $this->textdomain, $value );
+			}
 		}
 		
 		return $user_id;
@@ -484,6 +495,9 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 			</div>
 			<?php } ?>
 			<div class="clear"></div>
+			
+			<?php submit_button( __( 'Restore Original Header Image' ), 'button', 'wpdh-reset-header', false ); ?>
+			<span class="description"><?php _e( 'This will restore the original header image. You will not be able to restore any customizations.' ) ?></span>
 		</div>
 		<?php
 	}
@@ -577,7 +591,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 */
 	protected function get_active_author_header() {
 		
-		$active	=	get_user_meta( get_queried_object()->ID, $this->textdomain, true );
+		$active	=	get_user_meta( get_queried_object()->ID, '_wpdh_display_header', true );
 		
 		return apply_filters( 'wpdh_get_active_author_header', $this->get_active_header( $active ) );
 	}
