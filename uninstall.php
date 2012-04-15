@@ -9,7 +9,7 @@ delete_post_meta_by_key( '_wpdh_display_header' );
 delete_option( 'wpdh_tax_meta' );
 
 foreach ( get_users() as $user ) {
-	delete_user_meta( $user->ID, '_wpdh_display_header' );
+	delete_user_meta( $user->ID, 'wp-display-header' );
 }
 
 
