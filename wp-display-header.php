@@ -150,7 +150,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 		if ( isset($active_header) ) {
 			$header_url = $active_header;
 		}
-
+		
 		return $header_url;
 	}
 
@@ -358,16 +358,12 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 			
 			$value	=	('random' == $_POST[$this->textdomain]) ? 'random' : esc_url_raw( $_POST[$this->textdomain] );
 			
-			add_filter( 'wpdh_show_default_header', '__return_true', 99 );
-			
-			if ( $value == get_theme_mod( 'header_image' ) ) {
+			if ( (is_random_header_image() AND 'random' == $value) OR $value == get_theme_mod( 'header_image' ) ) {
 				delete_post_meta( $post_ID, '_wpdh_display_header' );
 			}
 			else {
 				update_post_meta( $post_ID, '_wpdh_display_header', $value );
 			}
-			
-			remove_filter( 'wpdh_show_default_header', '__return_true', 99 );
 		}
 		
 		return $post_ID;
@@ -603,16 +599,25 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @return	string
 	 */
 	protected function get_active_header( $header, $raw = false ) {
-
-		if ( 'random' == $header AND ! $raw ) {
-			$headers	=	$this->get_headers();
-			$header		=	sprintf(
-				$headers[array_rand($headers)]['url'],
-				get_template_directory_uri(),
-				get_stylesheet_directory_uri()
-			);
+		
+		if ( ! $header ) {
+			$header = get_theme_mod( 'header_image' );
 		}
-
+		
+		if ( is_random_header_image() OR 'random' == $header ) {
+			if ( $raw ) {
+				$header = 'random';
+			}
+			else {
+				$headers	=	$this->get_headers();
+				$header		=	sprintf(
+					$headers[array_rand($headers)]['url'],
+					get_template_directory_uri(),
+					get_stylesheet_directory_uri()
+				);
+			}
+		}
+		
 		return apply_filters( 'wpdh_get_active_header', $header );
 	}
 	

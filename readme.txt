@@ -2,7 +2,7 @@
 Contributors: kobenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
-Requires at least: 3.0
+Requires at least: 3.2
 Tested up to: 3.3.1
 Stable tag: 1.5.3
 
