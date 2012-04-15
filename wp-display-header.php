@@ -435,7 +435,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @since	1.0 - 22.01.2012
 	 * @access	protected
 	 *
-	 * @param	string	$active
+	 * @param	string	$active		Optional
 	 *
 	 * @return	void
 	 */
@@ -521,8 +521,8 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @since	2.0.0 - 12.03.2012
 	 * @access	protected
 	 *
-	 * @param	string	$post_ID
-	 * @param	boolean	$raw
+	 * @param	string	$post_ID	Optional
+	 * @param	boolean	$raw		Optional
 	 *
 	 * @return	string
 	 */
@@ -594,7 +594,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 * @access	public
 	 *
 	 * @param	string	$header	Header URL
-	 * @param	boolean	$raw
+	 * @param	boolean	$raw	Optional
 	 *
 	 * @return	string
 	 */
