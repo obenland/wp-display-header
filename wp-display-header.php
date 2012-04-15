@@ -591,7 +591,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v15 {
 	 */
 	protected function get_active_author_header() {
 		
-		$active	=	get_user_meta( get_queried_object()->ID, '_wpdh_display_header', true );
+		$active	=	get_user_meta( get_queried_object()->ID, $this->textdomain, true );
 		
 		return apply_filters( 'wpdh_get_active_author_header', $this->get_active_header( $active ) );
 	}
