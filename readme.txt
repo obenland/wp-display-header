@@ -3,8 +3,8 @@ Contributors: kobenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
-Tested up to: 3.4-beta2
-Stable tag: 2.0.0
+Tested up to: 3.4-beta4
+Stable tag: 2.0.1
 
 Select a specific header or random header image for each content item or archive page.
 
@@ -66,6 +66,9 @@ See TwentyEleven's `header.php` for reference.
 
 
 == Changelog ==
+
+= 2.0.1 =
+* Fixed a bug, where the fallback to the default header did not work. Props carloscorrela
 
 = 2.0.0 =
 * **IMPORTANT**: Version 2.0.0 breaks compatibility with WordPress versions **prior** to 3.2!

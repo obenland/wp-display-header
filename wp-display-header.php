@@ -4,7 +4,7 @@
  * Plugin Name:	WP Display Header
  * Plugin URI:	http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Description:	This plugin lets you specify a header image for each post and taxonomy/author archive page individually, from your default headers and custom headers.
- * Version:		2.0.0
+ * Version:		2.0.1
  * Author:		Konstantin Obenland
  * Author URI:	http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
  * Text Domain:	wp-display-header
@@ -147,7 +147,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_v200 {
 			$active_header = $this->get_active_post_header();
 		}
 		
-		if ( isset($active_header) ) {
+		if ( isset($active_header) AND $active_header ) {
 			$header_url = $active_header;
 		}
 
