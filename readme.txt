@@ -3,8 +3,8 @@ Contributors: kobenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
-Tested up to: 3.4-beta4
-Stable tag: 2.0.1
+Tested up to: 3.6
+Stable tag: 2.1.0
 
 Select a specific header or random header image for each content item or archive page.
 
@@ -67,18 +67,23 @@ See TwentyEleven's `header.php` for reference.
 
 == Changelog ==
 
+= 2.1.0 =
+* Added an option to not display a header at all.
+* Updated utility class.
+* Tested for WordPress 3.6.
+
 = 2.0.1 =
-* Fixed a bug, where the fallback to the default header did not work. Props carloscorrela
+* Fixed a bug, where the fallback to the default header did not work. Props carloscorrela.
 
 = 2.0.0 =
 * **IMPORTANT**: Version 2.0.0 breaks compatibility with WordPress versions **prior** to 3.2!
 * Added the header selection field to Taxonomy and Author Edit screens.
-* Fixed a minor bug for themes that have no header images registered
+* Fixed a minor bug for themes that have no header images registered.
 
 = 1.5.3 =
 * Improved user experience when current theme does not support custom headers, on activation of the plugin.
-* Deprecated settings functions for WP Save Custom Header in preparation for overhaul in v2.0.0
-* Updated utility class
+* Deprecated settings functions for WP Save Custom Header in preparation for overhaul in v2.0.0.
+* Updated utility class.
 
 = 1.5.2 =
 * Fixed a bug, where a selected header wouldn't override the default selection on posts pages.
@@ -87,33 +92,33 @@ See TwentyEleven's `header.php` for reference.
 * Specific headers can now be reverted by selecting the default header.
 
 = 1.5 =
-* Adjusted meta box layout to WordPress core
-* Transfered CSS in external file
-* Updated FAQ section (thanks Brian!)
-* Tested for WordPress 3.3.1
+* Adjusted meta box layout to WordPress core.
+* Transfered CSS in external file.
+* Updated FAQ section. Props Brian.
+* Tested for WordPress 3.3.1.
 
 = 1.4 =
-* Added support for WordPress 3.2 core header uploads
+* Added support for WordPress 3.2 core header uploads.
 
 = 1.3 =
 * Tested for WordPress 3.2-beta
 * Fixed a minor bug where a PHP warning was issued in the edit-post-screen, when there are no header images registered.
 
 = 1.2.1 =
-* WordPress Plugin Repository update bug
+* WordPress Plugin Repository update bug.
 
 = 1.2 =
-* Tested for WordPress 3.1.2
-* Now a custom folder name can be specified. See: Settings > Media
-* Added Italian translation (Thanks to Pietro Rossi)
+* Tested for WordPress 3.1.2.
+* Now a custom folder name can be specified. See: Settings > Media.
+* Added Italian translation. Props Pietro Rossi.
 
 = 1.1 =
 * Tested for WordPress 3.1.1
-* Adopted [WP Save Custom Header](http://wordpress.org/extend/plugins/wp-save-custom-header/ "This plugin lets you save and reuse your uploaded header images.") multisite capability
-* Made HTML W3C valid
+* Adopted [WP Save Custom Header](http://wordpress.org/extend/plugins/wp-save-custom-header/ "This plugin lets you save and reuse your uploaded header images.") multisite capability.
+* Made HTML W3C valid.
 
 = 1.0 =
-* Initial Release
+* Initial Release.
 
 == Upgrade Notice == 
 Maintenance update
