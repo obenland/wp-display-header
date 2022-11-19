@@ -67,6 +67,9 @@ See TwentyTwelve's `header.php` for reference.
 
 == Changelog ==
 
+= 7 =
+* Fixes a bug where posts pages would not load their assigned header image. See https://github.com/obenland/wp-display-header/issues/3
+
 = 6 =
 * Fixed a bug where srcset information for header images overrode custom header selections.
 
