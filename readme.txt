@@ -3,8 +3,8 @@ Contributors: obenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
-Tested up to: 5.6
-Stable tag: 6
+Tested up to: 6.1
+Stable tag: 7
 
 Select a specific header or random header image for each content item or archive page.
 
@@ -15,15 +15,6 @@ This plugin lets you specify a header image for each post, page, custom post typ
 It adds a meta box in the post edit screens with the header selection and a settings field in the edit profile and each taxonomy edit screen.
 If no specific header is specified for a post it will fall back to the default selection.
 There is no change of template files necessary as this plugin hooks in the existing WordPress API to unfold its magic.
-
-
-= Translations =
-I will be more than happy to update the plugin with new locales, as soon as I receive them!
-Currently available in:
-
-* English
-* Deutsch
-* Italiano
 
 Thanks to Erik T. for the idea to this plugin!
 
@@ -69,6 +60,8 @@ See TwentyTwelve's `header.php` for reference.
 
 = 7 =
 * Fixes a bug where posts pages would not load their assigned header image. See https://github.com/obenland/wp-display-header/issues/3
+* Updated utility class.
+* Tested for WordPress 6.1.
 
 = 6 =
 * Fixed a bug where srcset information for header images overrode custom header selections.
