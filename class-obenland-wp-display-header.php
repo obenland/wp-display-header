@@ -76,7 +76,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 			$active_header = $this->get_active_tax_header();
 		} elseif ( is_author() ) {
 			$active_header = $this->get_active_author_header();
-		} elseif ( is_singular() ) {
+		} elseif ( is_singular() || ( is_home() && ! is_front_page() ) ) {
 			$active_header = $this->get_active_post_header();
 		}
 
@@ -105,7 +105,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 			$active_header = $this->get_active_tax_header();
 		} elseif ( is_author() ) {
 			$active_header = $this->get_active_author_header();
-		} elseif ( is_singular() ) {
+		} elseif ( is_singular() || ( is_home() && ! is_front_page() ) ) {
 			$active_header = $this->get_active_post_header();
 		}
 
@@ -454,16 +454,20 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 *
 	 * @since 2.0.0 - 12.03.2012
 	 *
-	 * @param int     $post_ID Post id. Default: Current post.
+	 * @param int     $post_id Post id. Default: Current post.
 	 * @param boolean $raw     Whether to use WP's db value for a random header. Default: false.
 	 * @return string
 	 */
-	protected function get_active_post_header( $post_ID = 0, $raw = false ) {
-		if ( ! $post_ID ) {
-			$post_ID = get_post()->ID;
+	protected function get_active_post_header( $post_id = 0, $raw = false ) {
+		if ( ! $post_id && is_home() && ! is_front_page() ) {
+			$post_id = (int) get_option( 'page_for_posts' );
 		}
 
-		$active = get_post_meta( $post_ID, '_wpdh_display_header', true );
+		if ( ! $post_id ) {
+			$post_id = get_post()->ID;
+		}
+
+		$active = get_post_meta( $post_id, '_wpdh_display_header', true );
 
 		/**
 		 * Filters the active header for the current post.
@@ -471,7 +475,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 		 * @param string $header  Active header.
 		 * @param int    $post_ID Current post ID.
 		 */
-		return apply_filters( 'wpdh_get_active_post_header', $this->get_active_header( $active, $raw ), $post_ID );
+		return apply_filters( 'wpdh_get_active_post_header', $this->get_active_header( $active, $raw ), $post_id );
 	}
 
 	/**
