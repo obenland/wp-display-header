@@ -3,7 +3,7 @@ Contributors: obenland
 Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
-Tested up to: 6.1
+Tested up to: 6.4
 Stable tag: 7
 
 Select a specific header or random header image for each content item or archive page.
