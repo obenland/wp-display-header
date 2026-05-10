@@ -47,6 +47,11 @@ function applyHeaderFilterForPost(
 $q = new WP_Query( array( 'p' => ${ postId }, 'post_type' => 'post' ) );
 $wp_query = $q;
 $wp_the_query = $q;
+// the_post() advances the loop pointer and assigns the global \$post,
+// which the plugin's get_active_post_header() consults via get_post().
+// Without it the method reads get_post()->ID on a null and bails to
+// the input default.
+$q->the_post();
 echo apply_filters( 'theme_mod_header_image', '${ defaultHeader }' );`,
 	] );
 }
