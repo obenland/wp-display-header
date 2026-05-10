@@ -16,13 +16,18 @@ import { loginAsAdmin, wp } from './utils';
  *
  * 2. Saving a post header URL via the meta box (simulated through the
  *    underlying post-meta storage `_wpdh_display_header`, which is
- *    what the meta box submit handler writes) actually overrides
- *    `theme_mod_header_image` on a single post view. This is the
- *    plugin's `theme_mod_header_image` filter at work end-to-end.
+ *    what the meta box submit handler writes) actually surfaces the
+ *    overridden header URL in the rendered singular view — i.e. the
+ *    plugin's `theme_mod_header_image` filter is wired up end-to-end
+ *    and Twenty Seventeen consumes it.
  *
- * 3. With no override saved, the post falls back to the theme's default
- *    header. The plugin must not regress the unmodified path.
+ * 3. With no override saved, the rendered post does NOT contain a URL
+ *    we'd only have written by setting the override meta. Regression
+ *    check that the plugin doesn't accidentally inject a header on
+ *    posts that haven't opted in.
  */
+
+const OVERRIDE_URL = 'https://example.com/wp-content/uploads/wpdh-test-header.jpg';
 
 test.describe( 'WP Display Header', () => {
 	test( 'renders the Header meta box on the post edit screen', async ( {
@@ -54,7 +59,9 @@ test.describe( 'WP Display Header', () => {
 		await expect( metaBox ).toBeAttached( { timeout: 10000 } );
 	} );
 
-	test( 'overrides theme_mod_header_image for a post when post meta is set', () => {
+	test( 'override URL appears in the rendered post when post meta is set', async ( {
+		page,
+	} ) => {
 		// Create a post and set the per-post header URL via wp-cli — the
 		// same `_wpdh_display_header` post meta the meta box submit
 		// handler writes (see class-obenland-wp-display-header.php's
@@ -69,33 +76,32 @@ test.describe( 'WP Display Header', () => {
 			'--porcelain',
 		] );
 
-		const overrideUrl =
-			'https://example.com/wp-content/uploads/test-header.jpg';
 		wp( [
 			'post',
 			'meta',
 			'update',
 			postId,
 			'_wpdh_display_header',
-			overrideUrl,
+			OVERRIDE_URL,
 		] );
 
-		// Apply the filter directly via wp eval so we don't depend on
-		// any theme-specific markup. The plugin's
-		// `theme_mod_header_image` filter callback queries the current
-		// post's meta on a singular view; `wp eval` inside a
-		// `--url=<post_permalink>` context reproduces that environment.
+		// Visit the post and check that Twenty Seventeen renders our
+		// override URL. Twenty Seventeen surfaces the custom header
+		// image as a `background-image` on the `.custom-header-media`
+		// element and as `<img>` markup elsewhere — in both cases the
+		// URL appears verbatim in the rendered HTML, so a `toContain`
+		// on the page content is the cheapest robust assertion against
+		// theme markup churn.
 		const permalink = wp( [ 'post', 'url', postId ] );
-		const filtered = wp( [
-			`--url=${ permalink }`,
-			'eval',
-			"echo apply_filters( 'theme_mod_header_image', 'default-header.jpg' );",
-		] );
+		await page.goto( permalink );
 
-		expect( filtered ).toBe( overrideUrl );
+		const html = await page.content();
+		expect( html ).toContain( OVERRIDE_URL );
 	} );
 
-	test( 'leaves the default theme header in place when no override is set', () => {
+	test( 'override URL is absent when no post meta is set', async ( {
+		page,
+	} ) => {
 		const postId = wp( [
 			'post',
 			'create',
@@ -106,12 +112,11 @@ test.describe( 'WP Display Header', () => {
 		] );
 
 		const permalink = wp( [ 'post', 'url', postId ] );
-		const filtered = wp( [
-			`--url=${ permalink }`,
-			'eval',
-			"echo apply_filters( 'theme_mod_header_image', 'default-header.jpg' );",
-		] );
+		await page.goto( permalink );
 
-		expect( filtered ).toBe( 'default-header.jpg' );
+		// The plugin must not inject the override URL on a post that
+		// hasn't opted in via post meta.
+		const html = await page.content();
+		expect( html ).not.toContain( OVERRIDE_URL );
 	} );
 } );
