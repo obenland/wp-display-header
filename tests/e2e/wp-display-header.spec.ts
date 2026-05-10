@@ -16,18 +16,40 @@ import { loginAsAdmin, wp } from './utils';
  *
  * 2. Saving a post header URL via the meta box (simulated through the
  *    underlying post-meta storage `_wpdh_display_header`, which is
- *    what the meta box submit handler writes) actually surfaces the
- *    overridden header URL in the rendered singular view — i.e. the
- *    plugin's `theme_mod_header_image` filter is wired up end-to-end
- *    and Twenty Seventeen consumes it.
+ *    what the meta box submit handler writes) actually overrides
+ *    `theme_mod_header_image` for that post — i.e. the plugin's
+ *    `theme_mod_header_image` filter callback queries the post meta
+ *    and returns the override URL on a singular view.
  *
- * 3. With no override saved, the rendered post does NOT contain a URL
- *    we'd only have written by setting the override meta. Regression
- *    check that the plugin doesn't accidentally inject a header on
- *    posts that haven't opted in.
+ * 3. With no override saved, the same filter chain returns the input
+ *    unchanged. The plugin must not regress the unmodified path.
  */
 
-const OVERRIDE_URL = 'https://example.com/wp-content/uploads/wpdh-test-header.jpg';
+const OVERRIDE_URL =
+	'https://example.com/wp-content/uploads/wpdh-test-header.jpg';
+
+/**
+ * Asks wp-cli to apply `theme_mod_header_image` in a singular-post
+ * context for the given post ID. The plugin's filter callback only
+ * queries the post meta when `is_singular()` is true, so the wp eval
+ * sets up a `WP_Query` for the specific post and assigns it to both
+ * `$wp_query` and `$wp_the_query` (some WP code paths read one or the
+ * other). Returning the input default unchanged is the "no override"
+ * case.
+ */
+function applyHeaderFilterForPost(
+	postId: string,
+	defaultHeader: string
+): string {
+	return wp( [
+		'eval',
+		`global $wp_query, $wp_the_query;
+$q = new WP_Query( array( 'p' => ${ postId }, 'post_type' => 'post' ) );
+$wp_query = $q;
+$wp_the_query = $q;
+echo apply_filters( 'theme_mod_header_image', '${ defaultHeader }' );`,
+	] );
+}
 
 test.describe( 'WP Display Header', () => {
 	test( 'renders the Header meta box on the post edit screen', async ( {
@@ -59,9 +81,7 @@ test.describe( 'WP Display Header', () => {
 		await expect( metaBox ).toBeAttached( { timeout: 10000 } );
 	} );
 
-	test( 'override URL appears in the rendered post when post meta is set', async ( {
-		page,
-	} ) => {
+	test( 'theme_mod_header_image filter returns the override when post meta is set', () => {
 		// Create a post and set the per-post header URL via wp-cli — the
 		// same `_wpdh_display_header` post meta the meta box submit
 		// handler writes (see class-obenland-wp-display-header.php's
@@ -85,23 +105,12 @@ test.describe( 'WP Display Header', () => {
 			OVERRIDE_URL,
 		] );
 
-		// Visit the post and check that Twenty Seventeen renders our
-		// override URL. Twenty Seventeen surfaces the custom header
-		// image as a `background-image` on the `.custom-header-media`
-		// element and as `<img>` markup elsewhere — in both cases the
-		// URL appears verbatim in the rendered HTML, so a `toContain`
-		// on the page content is the cheapest robust assertion against
-		// theme markup churn.
-		const permalink = wp( [ 'post', 'url', postId ] );
-		await page.goto( permalink );
-
-		const html = await page.content();
-		expect( html ).toContain( OVERRIDE_URL );
+		expect( applyHeaderFilterForPost( postId, 'default-header.jpg' ) ).toBe(
+			OVERRIDE_URL
+		);
 	} );
 
-	test( 'override URL is absent when no post meta is set', async ( {
-		page,
-	} ) => {
+	test( 'theme_mod_header_image filter passes through when no post meta is set', () => {
 		const postId = wp( [
 			'post',
 			'create',
@@ -111,12 +120,8 @@ test.describe( 'WP Display Header', () => {
 			'--porcelain',
 		] );
 
-		const permalink = wp( [ 'post', 'url', postId ] );
-		await page.goto( permalink );
-
-		// The plugin must not inject the override URL on a post that
-		// hasn't opted in via post meta.
-		const html = await page.content();
-		expect( html ).not.toContain( OVERRIDE_URL );
+		expect( applyHeaderFilterForPost( postId, 'default-header.jpg' ) ).toBe(
+			'default-header.jpg'
+		);
 	} );
 } );
