@@ -1,10 +1,12 @@
 # WP Display Header
 Contributors: obenland
-Tags: admin, custom header, header, header image, custom header image, display header, display dynamic header, custom, dynamic, fast, header, image, images, page, plugin, posts
+Tags: header image, custom header, display header, dynamic, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
 Tested up to: 6.9
 Stable tag: 7
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Select a specific header or random header image for each content item or archive page.
 
