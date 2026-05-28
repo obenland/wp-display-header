@@ -3,7 +3,7 @@ Contributors: obenland
 Tags: header image, custom header, display header, dynamic, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
