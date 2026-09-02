@@ -52,7 +52,15 @@ jobs:
                   node-version-file: '.nvmrc'
                   cache: npm
 
+            - name: Cache node_modules
+              id: node-modules
+              uses: actions/cache@v6
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
             - name: npm install
+              if: steps.node-modules.outputs.cache-hit != 'true'
               run: npm ci
 
             - name: Install Composer dependencies
@@ -67,9 +75,9 @@ jobs:
                   path: |
                       ~/wp-env
                       ~/.wp-env
-                  key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json', '.wp-env.test.json', 'package-lock.json') }}
+                  key: ${{ runner.os }}-wp-env-phpunit-${{ hashFiles('.wp-env.test.json', 'package-lock.json') }}
                   restore-keys: |
-                      ${{ runner.os }}-wp-env-
+                      ${{ runner.os }}-wp-env-phpunit-
 
             - name: Start WordPress (tests environment)
               run: npm run start:test
