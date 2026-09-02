@@ -64,7 +64,12 @@ jobs:
             - name: Cache wp-env downloads
               uses: actions/cache@v6
               with:
-                  path: ~/.wp-env
+                  # Linux places these under ~/wp-env, other platforms under
+                  # ~/.wp-env. Both are listed so the step is not silently a
+                  # no-op if the runner ever changes.
+                  path: |
+                      ~/wp-env
+                      ~/.wp-env
                   key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json', '.wp-env.test.json', 'package-lock.json') }}
                   restore-keys: |
                       ${{ runner.os }}-wp-env-
