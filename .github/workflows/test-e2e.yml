@@ -11,6 +11,7 @@ on:
             - 'composer.lock'
             - 'playwright.config.ts'
             - '.wp-env.json'
+            - '.wp-env.test.json'
             - 'package.json'
             - 'package-lock.json'
             - '.nvmrc'
@@ -25,6 +26,7 @@ on:
             - 'composer.lock'
             - 'playwright.config.ts'
             - '.wp-env.json'
+            - '.wp-env.test.json'
             - 'package.json'
             - 'package-lock.json'
             - '.nvmrc'
@@ -53,11 +55,31 @@ jobs:
                   node-version-file: '.nvmrc'
                   cache: npm
 
+            - name: Cache node_modules
+              id: node-modules
+              uses: actions/cache@v6
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
             - name: npm install
+              if: steps.node-modules.outputs.cache-hit != 'true'
               run: npm ci
 
+            - name: Cache Playwright browsers
+              id: playwright
+              uses: actions/cache@v6
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+
             - name: Install Playwright browsers
+              if: steps.playwright.outputs.cache-hit != 'true'
               run: npm run test:e2e:install
+
+            - name: Install Playwright system dependencies
+              if: steps.playwright.outputs.cache-hit == 'true'
+              run: npx playwright install-deps chromium
 
             - name: Start WordPress (with twentyseventeen)
               run: npm run start

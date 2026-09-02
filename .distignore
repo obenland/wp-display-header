@@ -16,9 +16,11 @@
 .gitignore
 .nvmrc
 .wp-env.json
+.wp-env.test.json
 composer.json
 composer.lock
 package.json
 package-lock.json
 phpunit.xml
 playwright.config.ts
+phpunit.xml.dist

@@ -1,6 +1,7 @@
 {
 	"core": null,
 	"phpVersion": "8.3",
+	"testsEnvironment": false,
 	"themes": [
 		"https://downloads.wordpress.org/theme/twentyseventeen.zip"
 	],

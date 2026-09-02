@@ -4,3 +4,4 @@
 /test-results/
 /playwright/.cache/
 .DS_Store
+.phpunit.result.cache

@@ -1,0 +1,73 @@
+name: PHP Tests
+
+on:
+    push:
+        branches: [trunk]
+        paths:
+            - '**/*.php'
+            - 'tests/phpunit/**'
+            - 'composer.json'
+            - 'composer.lock'
+            - 'phpunit.xml.dist'
+            - '.wp-env.test.json'
+            - '.wp-env.json'
+            - 'package.json'
+            - 'package-lock.json'
+            - '.nvmrc'
+            - '.github/workflows/test-php.yml'
+    pull_request:
+        branches: [trunk]
+        paths:
+            - '**/*.php'
+            - 'tests/phpunit/**'
+            - 'composer.json'
+            - 'composer.lock'
+            - 'phpunit.xml.dist'
+            - '.wp-env.test.json'
+            - '.wp-env.json'
+            - 'package.json'
+            - 'package-lock.json'
+            - '.nvmrc'
+            - '.github/workflows/test-php.yml'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    phpunit:
+        name: PHPUnit
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Setup Node.js (.nvmrc)
+              uses: actions/setup-node@v7
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: npm
+
+            - name: Cache node_modules
+              id: node-modules
+              uses: actions/cache@v6
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
+            - name: npm install
+              if: steps.node-modules.outputs.cache-hit != 'true'
+              run: npm ci
+
+            - name: Install Composer dependencies
+              uses: 'ramsey/composer-install@v4'
+
+            - name: Start WordPress (tests environment)
+              run: npm run start:test
+
+            - name: Run PHPUnit
+              run: npm run test:php
