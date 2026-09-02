@@ -279,20 +279,16 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * @return int Post ID
 	 */
 	public function save_post( $post_ID ) {
-		if ( ( ! defined( 'DOING_AUTOSAVE' ) || ! DOING_AUTOSAVE ) &&
-			isset( $_POST[ $this->textdomain ] ) &&
-			wp_verify_nonce( $_POST[ "{$this->textdomain}-nonce" ], $this->textdomain ) //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		) {
+		$header = $this->get_submitted_header( 'edit_post', $post_ID );
 
-			if ( isset( $_POST['wpdh-reset-header'] ) ) {
-				delete_post_meta( $post_ID, '_wpdh_display_header' );
+		if ( null === $header ) {
+			return $post_ID;
+		}
 
-			} else {
-				$non_url = in_array( $_POST[ $this->textdomain ], array( 'random', 'remove-header' ), true );
-				$value   = $non_url ? $_POST[ $this->textdomain ] : esc_url_raw( wp_unslash( $_POST[ $this->textdomain ] ) ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-
-				update_post_meta( $post_ID, '_wpdh_display_header', $value );
-			}
+		if ( '' === $header ) {
+			delete_post_meta( $post_ID, '_wpdh_display_header' );
+		} else {
+			update_post_meta( $post_ID, '_wpdh_display_header', $header );
 		}
 
 		return $post_ID;
@@ -308,21 +304,21 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * @return int Term ID
 	 */
 	public function edit_term( $term_id, $tt_id ) {
-		if ( ( ! defined( 'DOING_AUTOSAVE' ) || ! DOING_AUTOSAVE ) &&
-			isset( $_POST[ $this->textdomain ] ) &&
-			wp_verify_nonce( $_POST[ "{$this->textdomain}-nonce" ], $this->textdomain ) //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		) {
-			$term_meta = get_option( 'wpdh_tax_meta', array() );
+		$header = $this->get_submitted_header( 'edit_term', $term_id );
 
-			if ( isset( $_POST['wpdh-reset-header'] ) ) {
-				unset( $term_meta[ $tt_id ] );
-			} else {
-				$non_url             = in_array( $_POST[ $this->textdomain ], array( 'random', 'remove-header' ), true );
-				$term_meta[ $tt_id ] = $non_url ? $_POST[ $this->textdomain ] : esc_url_raw( $_POST[ $this->textdomain ] );  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			}
-
-			update_option( 'wpdh_tax_meta', $term_meta );
+		if ( null === $header ) {
+			return $term_id;
 		}
+
+		$term_meta = (array) get_option( 'wpdh_tax_meta', array() );
+
+		if ( '' === $header ) {
+			unset( $term_meta[ $tt_id ] );
+		} else {
+			$term_meta[ $tt_id ] = $header;
+		}
+
+		update_option( 'wpdh_tax_meta', $term_meta );
 
 		return $term_id;
 	}
@@ -336,22 +332,61 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * @return int User ID
 	 */
 	public function update_user( $user_id ) {
-		if ( ( ! defined( 'DOING_AUTOSAVE' ) || ! DOING_AUTOSAVE ) &&
-			isset( $_POST[ $this->textdomain ] ) &&
-			wp_verify_nonce( $_POST[ "{$this->textdomain}-nonce" ], $this->textdomain ) //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		) {
+		$header = $this->get_submitted_header( 'edit_user', $user_id );
 
-			if ( isset( $_POST['wpdh-reset-header'] ) ) {
-				delete_user_meta( $user_id, $this->textdomain );
-			} else {
-				$non_url = in_array( $_POST[ $this->textdomain ], array( 'random', 'remove-header' ), true );
-				$value   = $non_url ? $_POST[ $this->textdomain ] : esc_url_raw( $_POST[ $this->textdomain ] );  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( null === $header ) {
+			return $user_id;
+		}
 
-				update_user_meta( $user_id, $this->textdomain, $value );
-			}
+		if ( '' === $header ) {
+			delete_user_meta( $user_id, $this->textdomain );
+		} else {
+			update_user_meta( $user_id, $this->textdomain, $header );
 		}
 
 		return $user_id;
+	}
+
+	/**
+	 * Returns the header selection submitted for an object the current user may edit.
+	 *
+	 * Recognized keywords are passed through as-is, anything else is treated as
+	 * a URL.
+	 *
+	 * @since 8.1
+	 *
+	 * @param string $capability Capability required to edit the object.
+	 * @param int    $object_id  ID of the object being edited.
+	 * @return string|null Header keyword or URL, an empty string when the stored
+	 *                     header should be dropped, or null when the request
+	 *                     carries nothing to save.
+	 */
+	protected function get_submitted_header( $capability, $object_id ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return null;
+		}
+
+		if ( ! isset( $_POST[ $this->textdomain ], $_POST[ "{$this->textdomain}-nonce" ] ) ) {
+			return null;
+		}
+
+		$nonce = sanitize_text_field( wp_unslash( $_POST[ "{$this->textdomain}-nonce" ] ) );
+
+		if ( ! wp_verify_nonce( $nonce, $this->textdomain ) || ! current_user_can( $capability, $object_id ) ) {
+			return null;
+		}
+
+		if ( isset( $_POST['wpdh-reset-header'] ) || ! is_scalar( $_POST[ $this->textdomain ] ) ) {
+			return '';
+		}
+
+		$value = sanitize_text_field( wp_unslash( $_POST[ $this->textdomain ] ) );
+
+		if ( in_array( $value, array( 'random', 'remove-header' ), true ) ) {
+			return $value;
+		}
+
+		return esc_url_raw( $value );
 	}
 
 	/**
@@ -376,11 +411,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 
 		foreach ( array_keys( $headers ) as $header ) {
 			foreach ( array( 'url', 'thumbnail_url' ) as $url ) {
-				$headers[ $header ][ $url ] = sprintf(
-					$headers[ $header ][ $url ],
-					get_template_directory_uri(),
-					get_stylesheet_directory_uri()
-				);
+				$headers[ $header ][ $url ] = $this->expand_header_url( $headers[ $header ][ $url ] );
 			}
 		}
 
@@ -420,6 +451,30 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 			<span class="description"><?php esc_html_e( 'This will restore the original header image. You will not be able to restore any customizations.', 'wp-display-header' ); ?></span>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Fills in the template directory placeholders of a header URL.
+	 *
+	 * Registered headers may reference the template or stylesheet directory
+	 * through sprintf placeholders. URLs that carry anything else are returned
+	 * untouched.
+	 *
+	 * @since 8.1
+	 *
+	 * @param string $url Header URL.
+	 * @return string Header URL with placeholders resolved.
+	 */
+	protected function expand_header_url( $url ) {
+		if ( ! is_string( $url ) || false === strpos( $url, '%' ) ) {
+			return (string) $url;
+		}
+
+		try {
+			return sprintf( $url, get_template_directory_uri(), get_stylesheet_directory_uri() );
+		} catch ( Throwable $e ) {
+			return $url;
+		}
 	}
 
 	/**
@@ -541,11 +596,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	protected function get_active_header( $header, $raw = false ) {
 		if ( 'random' === $header && ! $raw ) {
 			$headers = $this->get_headers();
-			$header  = sprintf(
-				$headers[ array_rand( $headers ) ]['url'],
-				get_template_directory_uri(),
-				get_stylesheet_directory_uri()
-			);
+			$header  = $this->expand_header_url( $headers[ array_rand( $headers ) ]['url'] );
 		}
 
 		/**
