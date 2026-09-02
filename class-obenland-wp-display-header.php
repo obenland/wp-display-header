@@ -380,13 +380,11 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 			return '';
 		}
 
-		$value = sanitize_text_field( wp_unslash( $_POST[ $this->textdomain ] ) );
-
-		if ( in_array( $value, array( 'random', 'remove-header' ), true ) ) {
-			return $value;
+		if ( in_array( $_POST[ $this->textdomain ], array( 'random', 'remove-header' ), true ) ) {
+			return sanitize_key( wp_unslash( $_POST[ $this->textdomain ] ) );
 		}
 
-		return esc_url_raw( $value );
+		return esc_url_raw( wp_unslash( $_POST[ $this->textdomain ] ) );
 	}
 
 	/**
@@ -457,8 +455,8 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * Fills in the template directory placeholders of a header URL.
 	 *
 	 * Registered headers may reference the template or stylesheet directory
-	 * through sprintf placeholders. URLs that carry anything else are returned
-	 * untouched.
+	 * through the %s, %1$s and %2$s placeholders. URLs without one are returned
+	 * untouched, so percent-encoded characters are left alone.
 	 *
 	 * @since 8.1
 	 *
@@ -466,7 +464,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * @return string Header URL with placeholders resolved.
 	 */
 	protected function expand_header_url( $url ) {
-		if ( ! is_string( $url ) || false === strpos( $url, '%' ) ) {
+		if ( ! is_string( $url ) || ! preg_match( '/%(?:\d+\$)?s/', $url ) ) {
 			return (string) $url;
 		}
 
