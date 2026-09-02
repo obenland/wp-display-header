@@ -353,7 +353,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * Recognized keywords are passed through as-is, anything else is treated as
 	 * a URL.
 	 *
-	 * @since 8.1
+	 * @since 9 - 02.09.2026
 	 *
 	 * @param string $capability Capability required to edit the object.
 	 * @param int    $object_id  ID of the object being edited.
@@ -458,7 +458,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * through the %s, %1$s and %2$s placeholders. URLs without one are returned
 	 * untouched, so percent-encoded characters are left alone.
 	 *
-	 * @since 8.1
+	 * @since 9 - 02.09.2026
 	 *
 	 * @param string $url Header URL.
 	 * @return string Header URL with placeholders resolved.
