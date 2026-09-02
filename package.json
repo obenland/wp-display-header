@@ -17,6 +17,8 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:install": "playwright install --with-deps chromium",
-		"test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-display-header vendor/bin/phpunit"
+		"test:php": "wp-env run cli --config .wp-env.test.json --env-cwd=wp-content/plugins/wp-display-header vendor/bin/phpunit",
+		"start:test": "wp-env start --config .wp-env.test.json",
+		"stop:test": "wp-env stop --config .wp-env.test.json"
 	}
 }

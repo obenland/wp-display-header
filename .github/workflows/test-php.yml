@@ -9,6 +9,7 @@ on:
             - 'composer.json'
             - 'composer.lock'
             - 'phpunit.xml.dist'
+            - '.wp-env.test.json'
             - '.wp-env.json'
             - 'package.json'
             - 'package-lock.json'
@@ -22,6 +23,7 @@ on:
             - 'composer.json'
             - 'composer.lock'
             - 'phpunit.xml.dist'
+            - '.wp-env.test.json'
             - '.wp-env.json'
             - 'package.json'
             - 'package-lock.json'
@@ -56,8 +58,16 @@ jobs:
             - name: Install Composer dependencies
               uses: 'ramsey/composer-install@v4'
 
-            - name: Start WordPress
-              run: npm run start
+            - name: Cache wp-env downloads
+              uses: actions/cache@v6
+              with:
+                  path: ~/.wp-env
+                  key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json', '.wp-env.test.json', 'package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-wp-env-
+
+            - name: Start WordPress (tests environment)
+              run: npm run start:test
 
             - name: Run PHPUnit
               run: npm run test:php

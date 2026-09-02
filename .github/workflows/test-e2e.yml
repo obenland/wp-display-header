@@ -11,6 +11,7 @@ on:
             - 'composer.lock'
             - 'playwright.config.ts'
             - '.wp-env.json'
+            - '.wp-env.test.json'
             - 'package.json'
             - 'package-lock.json'
             - '.nvmrc'
@@ -25,6 +26,7 @@ on:
             - 'composer.lock'
             - 'playwright.config.ts'
             - '.wp-env.json'
+            - '.wp-env.test.json'
             - 'package.json'
             - 'package-lock.json'
             - '.nvmrc'
@@ -58,6 +60,14 @@ jobs:
 
             - name: Install Playwright browsers
               run: npm run test:e2e:install
+
+            - name: Cache wp-env downloads
+              uses: actions/cache@v6
+              with:
+                  path: ~/.wp-env
+                  key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json', '.wp-env.test.json', 'package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-wp-env-
 
             - name: Start WordPress (with twentyseventeen)
               run: npm run start
