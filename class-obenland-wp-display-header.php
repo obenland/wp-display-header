@@ -489,18 +489,16 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 	 * @return string
 	 */
 	protected function get_active_tax_header() {
-		$active = get_option( 'wpdh_tax_meta', false );
-
-		if ( $active ) {
-			$tt_id  = get_queried_object()->term_taxonomy_id;
-			$active = isset( $active[ $tt_id ] ) ? $active[ $tt_id ] : '';
-		}
+		$queried_object = get_queried_object();
+		$tt_id          = isset( $queried_object->term_taxonomy_id ) ? $queried_object->term_taxonomy_id : null;
+		$tax_meta       = get_option( 'wpdh_tax_meta', array() );
+		$active         = ( $tt_id && is_array( $tax_meta ) && isset( $tax_meta[ $tt_id ] ) ) ? $tax_meta[ $tt_id ] : '';
 
 		/**
 		 * Filters the active header for the current taxonomy.
 		 *
-		 * @param string $header Active header.
-		 * @param int    $tt_id  Term taxonomy ID.
+		 * @param string   $header Active header.
+		 * @param int|null $tt_id  Term taxonomy ID, or null if the queried object is not a term.
 		 */
 		return apply_filters( 'wpdh_get_active_tax_header', $this->get_active_header( $active ), $tt_id );
 	}
