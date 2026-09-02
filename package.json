@@ -16,6 +16,7 @@
 		"destroy": "wp-env destroy",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
-		"test:e2e:install": "playwright install --with-deps chromium"
+		"test:e2e:install": "playwright install --with-deps chromium",
+		"test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-display-header vendor/bin/phpunit"
 	}
 }

@@ -22,3 +22,4 @@ package.json
 package-lock.json
 phpunit.xml
 playwright.config.ts
+phpunit.xml.dist
