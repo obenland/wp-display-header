@@ -1,14 +1,15 @@
 <?php
 /**
- * Plugin Name: WP Display Header
- * Plugin URI:  http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
- * Description: This plugin lets you specify a header image for each post and taxonomy/author archive page individually, from your default headers and custom headers.
- * Version:     8
- * Author:      Konstantin Obenland
- * Author URI:  http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
- * Text Domain: wp-display-header
- * Domain Path: /lang
- * License:     GPLv2
+ * Plugin Name:  WP Display Header
+ * Plugin URI:   http://en.wp.obenland.it/wp-display-header/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
+ * Description:  This plugin lets you specify a header image for each post and taxonomy/author archive page individually, from your default headers and custom headers.
+ * Version:      9
+ * Author:       Konstantin Obenland
+ * Author URI:   http://en.wp.obenland.it/?utm_source=wordpress&utm_medium=plugin&utm_campaign=wp-display-header
+ * Requires PHP: 7.4
+ * Text Domain:  wp-display-header
+ * Domain Path:  /lang
+ * License:      GPLv2
  *
  * @package wp-display-header
  */

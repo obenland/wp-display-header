@@ -4,7 +4,8 @@ Tags: header image, custom header, display header, dynamic, posts
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MWUA92KA2TL6Q
 Requires at least: 3.2
 Tested up to: 7.1
-Stable tag: 8
+Requires PHP: 7.4
+Stable tag: 9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -59,6 +60,21 @@ See TwentyTwelve's `header.php` for reference.
 
 
 ## Changelog
+
+### 9
+* Fixed the Restore Original Header Image button doing nothing when no header had been selected yet.
+* Fixed header URLs containing percent-encoded characters, such as non-ASCII file names, being corrupted when saved.
+* Fixed a PHP warning on taxonomy archives when the queried object is not a term. See https://github.com/obenland/wp-display-header/issues/79
+* Header selections are now checked against the current user's capabilities before being saved.
+* Corrected escaping of the donate link on the plugins screen.
+* Added a PHPUnit test suite covering the post, term and profile save handlers.
+* This release requires PHP 7.4 or later.
+* Tested for WordPress 7.1.
+
+### 8
+* Maintenance release. No functional changes.
+* Added end-to-end tests and refreshed the development tooling.
+* Tested for WordPress 6.9.
 
 ### 7
 * Fixes a bug where posts pages would not load their assigned header image. See https://github.com/obenland/wp-display-header/issues/3

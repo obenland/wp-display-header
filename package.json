@@ -1,6 +1,6 @@
 {
 	"name": "wp-display-header",
-	"version": "7.0.0",
+	"version": "9.0.0",
 	"private": true,
 	"description": "Specify a header image per post and per taxonomy/author archive.",
 	"devDependencies": {
