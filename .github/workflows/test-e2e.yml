@@ -81,19 +81,6 @@ jobs:
               if: steps.playwright.outputs.cache-hit == 'true'
               run: npx playwright install-deps chromium
 
-            - name: Cache wp-env downloads
-              uses: actions/cache@v6
-              with:
-                  # Linux places these under ~/wp-env, other platforms under
-                  # ~/.wp-env. Both are listed so the step is not silently a
-                  # no-op if the runner ever changes.
-                  path: |
-                      ~/wp-env
-                      ~/.wp-env
-                  key: ${{ runner.os }}-wp-env-e2e-${{ hashFiles('.wp-env.json', 'package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-wp-env-e2e-
-
             - name: Start WordPress (with twentyseventeen)
               run: npm run start
 

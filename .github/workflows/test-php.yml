@@ -66,19 +66,6 @@ jobs:
             - name: Install Composer dependencies
               uses: 'ramsey/composer-install@v4'
 
-            - name: Cache wp-env downloads
-              uses: actions/cache@v6
-              with:
-                  # Linux places these under ~/wp-env, other platforms under
-                  # ~/.wp-env. Both are listed so the step is not silently a
-                  # no-op if the runner ever changes.
-                  path: |
-                      ~/wp-env
-                      ~/.wp-env
-                  key: ${{ runner.os }}-wp-env-phpunit-${{ hashFiles('.wp-env.test.json', 'package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-wp-env-phpunit-
-
             - name: Start WordPress (tests environment)
               run: npm run start:test
 
