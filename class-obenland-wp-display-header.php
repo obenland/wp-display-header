@@ -492,7 +492,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 		$queried_object = get_queried_object();
 		$tt_id          = isset( $queried_object->term_taxonomy_id ) ? $queried_object->term_taxonomy_id : null;
 		$tax_meta       = get_option( 'wpdh_tax_meta', array() );
-		$active         = ( $tt_id && isset( $tax_meta[ $tt_id ] ) ) ? $tax_meta[ $tt_id ] : '';
+		$active         = ( $tt_id && is_array( $tax_meta ) && isset( $tax_meta[ $tt_id ] ) ) ? $tax_meta[ $tt_id ] : '';
 
 		/**
 		 * Filters the active header for the current taxonomy.
