@@ -34,10 +34,15 @@ require_once "{$wpdh_tests_dir}/includes/functions.php";
 /**
  * Declares Custom Header support and loads the plugin's classes.
  *
- * The plugin only instantiates itself when the active theme supports custom
- * headers, so the support is declared before that check runs. The tests build
- * their own instance rather than relying on the `init` hook, so only the class
- * files are required here.
+ * Deliberately only the class files. The main plugin file registers an `init`
+ * callback that constructs a fully hooked instance, which would leave the save
+ * handlers attached for the whole run: creating a post or term through the
+ * factories would then reach them, and a test that had already populated $_POST
+ * would see a write it never asked for. Each test constructs the instance it
+ * needs and calls it directly instead.
+ *
+ * Custom Header support is declared because the plugin is only meaningful on a
+ * theme that has it.
  *
  * @since 9 - 02.09.2026
  */
@@ -46,7 +51,6 @@ function wpdh_manually_load_plugin() {
 
 	require_once dirname( __DIR__, 2 ) . '/class-obenland-wp-plugins-v5.php';
 	require_once dirname( __DIR__, 2 ) . '/class-obenland-wp-display-header.php';
-	require_once dirname( __DIR__, 2 ) . '/wp-display-header.php';
 }
 tests_add_filter( 'muplugins_loaded', 'wpdh_manually_load_plugin' );
 
