@@ -107,6 +107,21 @@ class Wpdh_Save_Post_Test extends Wpdh_Test_Case {
 	}
 
 	/**
+	 * Reset works when no radio is selected.
+	 *
+	 * The form renders with nothing checked while no header has been chosen, so
+	 * the browser omits the field entirely and only the reset button arrives.
+	 */
+	public function test_reset_without_selection_deletes_meta() {
+		update_post_meta( $this->post_id, '_wpdh_display_header', 'https://example.com/old.jpg' );
+
+		$this->post_as( $this->editor_id, null, array( 'wpdh-reset-header' => 'Restore' ) );
+		$this->plugin->save_post( $this->post_id );
+
+		$this->assertSame( '', $this->stored_header() );
+	}
+
+	/**
 	 * A request without a nonce field is ignored, and warns about nothing.
 	 */
 	public function test_ignores_request_without_nonce() {

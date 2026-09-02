@@ -107,6 +107,18 @@ class Wpdh_Edit_Term_Test extends Wpdh_Test_Case {
 	}
 
 	/**
+	 * Reset works when no radio is selected.
+	 */
+	public function test_reset_without_selection_removes_entry() {
+		update_option( 'wpdh_tax_meta', array( $this->tt_id => 'https://example.com/old.jpg' ) );
+
+		$this->post_as( $this->admin_id, null, array( 'wpdh-reset-header' => 'Restore' ) );
+		$this->plugin->edit_term( $this->term_id, $this->tt_id );
+
+		$this->assertSame( '', $this->stored_header() );
+	}
+
+	/**
 	 * A valid nonce alone is not enough without the capability.
 	 */
 	public function test_ignores_user_without_capability() {

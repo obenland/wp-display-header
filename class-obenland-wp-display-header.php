@@ -366,7 +366,7 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 			return null;
 		}
 
-		if ( ! isset( $_POST[ $this->textdomain ], $_POST[ "{$this->textdomain}-nonce" ] ) ) {
+		if ( ! isset( $_POST[ "{$this->textdomain}-nonce" ] ) ) {
 			return null;
 		}
 
@@ -376,7 +376,15 @@ class Obenland_Wp_Display_Header extends Obenland_Wp_Plugins_V5 {
 			return null;
 		}
 
-		if ( isset( $_POST['wpdh-reset-header'] ) || ! is_scalar( $_POST[ $this->textdomain ] ) ) {
+		if ( isset( $_POST['wpdh-reset-header'] ) ) {
+			return '';
+		}
+
+		if ( ! isset( $_POST[ $this->textdomain ] ) ) {
+			return null;
+		}
+
+		if ( ! is_scalar( $_POST[ $this->textdomain ] ) ) {
 			return '';
 		}
 

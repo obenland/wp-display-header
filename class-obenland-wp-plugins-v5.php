@@ -126,7 +126,7 @@ class Obenland_Wp_Plugins_V5 {
 			$label = __( 'Donate', 'obenland-wp' );
 
 			$plugin_meta[] = sprintf(
-				'<a href="%1$s" target="_blank" title="%2$s">%3$s</a>',
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer" title="%2$s">%3$s</a>',
 				esc_url( $this->donate_link ),
 				esc_attr( $label ),
 				esc_html( $label )

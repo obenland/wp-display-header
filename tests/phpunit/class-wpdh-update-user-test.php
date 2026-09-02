@@ -105,6 +105,18 @@ class Wpdh_Update_User_Test extends Wpdh_Test_Case {
 	}
 
 	/**
+	 * Reset works when no radio is selected.
+	 */
+	public function test_reset_without_selection_deletes_meta() {
+		update_user_meta( $this->subscriber_id, 'wp-display-header', 'https://example.com/old.jpg' );
+
+		$this->post_as( $this->subscriber_id, null, array( 'wpdh-reset-header' => 'Restore' ) );
+		$this->plugin->update_user( $this->subscriber_id );
+
+		$this->assertSame( '', $this->stored_header( $this->subscriber_id ) );
+	}
+
+	/**
 	 * A request carrying a bad nonce is ignored.
 	 */
 	public function test_ignores_invalid_nonce() {
