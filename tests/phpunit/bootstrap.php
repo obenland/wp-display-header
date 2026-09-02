@@ -39,7 +39,7 @@ require_once "{$wpdh_tests_dir}/includes/functions.php";
  * their own instance rather than relying on the `init` hook, so only the class
  * files are required here.
  *
- * @since 8.1
+ * @since 9 - 02.09.2026
  */
 function wpdh_manually_load_plugin() {
 	add_theme_support( 'custom-header' );
