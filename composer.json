@@ -6,7 +6,7 @@
     "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
     "wp-coding-standards/wpcs": "^3.3",
     "phpunit/phpunit": "^9.6",
-    "yoast/phpunit-polyfills": "^2.0",
+    "yoast/phpunit-polyfills": "^4.0",
     "wp-phpunit/wp-phpunit": "^7.1"
   },
   "config": {
