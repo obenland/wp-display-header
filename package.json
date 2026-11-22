@@ -4,7 +4,7 @@
 	"private": true,
 	"description": "Specify a header image per post and per taxonomy/author archive.",
 	"devDependencies": {
-		"@playwright/test": "^1.65.0",
+		"@playwright/test": "^1.65.1",
 		"@wordpress/env": "^12.1.0",
 		"@wordpress/scripts": "^37.1.0"
 	},
